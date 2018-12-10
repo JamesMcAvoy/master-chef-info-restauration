@@ -39,16 +39,17 @@ Sinon:
 {
     "sauvegarde": "true",
     "temps": 0,
-    "etat": // dump de l'objet "restaurant"
+    "etat": " dump de l'objet restaurant"
 }
 ```
 
 ### Sauvegarde: 
+```json
 {
     "type": "sauvegarde",
-    "etat": // dump de l'objet "restaurant"
+    "etat": "dump de l'objet restaurant"
 }
-
+```
 ### Accélération du temps:
 ```json
 {
@@ -60,7 +61,7 @@ Sinon:
 ### commandes:
 ```json
 {
-    "type": "commande"
+    "type": "commande",
     "commande": {
         "entrees": [
             "tableau de strings avec le nom des entrées"
