@@ -17,9 +17,15 @@ avec "temps" le nombre de secondes écoulées depuis minuit
 Réponse attendue si pas de restauration de sauvegarde:
 ```json
 {
-    "sauvegarde": "false",
+    "sauvegarde": false,
     "restos": [
         {
+            "temps": 0,
+            "acceleration": 60,
+            "horaires": [
+                [12, 15],
+                [19, 22]
+            ],
             "entrees": [
                 "tableau de strings contenant toutes les entrées"
             ],
@@ -28,16 +34,24 @@ Réponse attendue si pas de restauration de sauvegarde:
             ],
             "desserts": [
                 "tableau de strings"
+            ],
+            "carres": [
+                {
+                    "2": 5,
+                    "4": 5,
+                    "6": 2,
+                    "8": 1,
+                    "10": 1
+                }
             ]
         }
-    ],
-    "temps": 0
+    ]
 }
 ```
 Sinon: 
 ```json
 {
-    "sauvegarde": "true",
+    "sauvegarde": true,
     "temps": 0,
     "etat": " dump de l'objet restaurant"
 }
@@ -111,7 +125,7 @@ Liste de tous les retours de matériel commun possible:
 ```json
 {
     "type": "pause",
-    "pause": "true"
+    "pause": true
 }
 ```
 ou "false" pour remettre le resto en marche
