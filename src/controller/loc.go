@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"flag"
 	"time"
 
 	"github.com/JamesMcAvoy/resto/src/view"
@@ -22,15 +21,8 @@ type Resto struct {
 
 // Constructeur de restaurant
 func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e, p, d []string) *Resto {
-	// La librairie Pixel DOIT utiliser le thread principal, elle ne peut pas s'exécuter ailleurs.
-	// Mais le thread principal n'est pas disponible pendant les tests unitaires.
-	// Les tests interagissant avec la librairie graphique sont impossibles, d'où cette condition.
 	var win *view.Window
-	if flag.Lookup("test.v") == nil {
-		win = view.NewWindow(width, height, i)
-	} else {
-		win = nil
-	}
+	win = view.NewWindow(width, height, i)
 	resto := Resto{
 		Win:      win,
 		Temps:    temps,
@@ -48,7 +40,7 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 }
 
 func tmpFuncPourTesterLaffichage(r *Resto) {
-	sprite := r.Win.AddSprite("ressources/serveur.png")
+	sprite := r.Win.NewSprite("ressources/serveur.png")
 	sprite.Matrix = sprite.Matrix.Scaled(r.Win.Window.Bounds().Center(), 0.5)
 }
 

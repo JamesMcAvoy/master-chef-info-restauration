@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"github.com/faiface/pixel/pixelgl"
+	"os"
 	"testing"
 	"time"
 )
@@ -15,6 +17,12 @@ var NewRestoTest = []NewRestoTestStruct{
 	{0, 2, false, 1},
 	{5, 1, true, 5},
 	{0, 60, false, 30},
+}
+
+func TestMain(m *testing.M) {
+	pixelgl.Run(func() {
+		os.Exit(m.Run())
+	})
 }
 
 func TestNewResto(t *testing.T) {

@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	//"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -32,7 +32,11 @@ func handle(w http.ResponseWriter, r *http.Request, temps int) {
 	var rep map[string]interface{}
 	switch req["type"] {
 	case "bonjour":
-		repBytes, err := ioutil.ReadFile("ressources/serveur/bonjour.json")
+		abs, err := filepath.Abs("ressources/serveur/bonjour.json")
+		if err != nil {
+			panic(err)
+		}
+		repBytes, err := ioutil.ReadFile(abs)
 		if err != nil {
 			panic(err)
 		}

@@ -29,7 +29,7 @@ type Window struct {
 }
 
 // Ajoute un sprite à l'interface graphique
-func (w *Window) AddSprite(path string) *Sprite {
+func (w *Window) NewSprite(path string) *Sprite {
 	img, err := LoadPicture(path)
 	if err != nil {
 		panic(err)
@@ -53,7 +53,6 @@ func (w *Window) Draw() {
 	refresh := time.Tick(time.Second / time.Duration(60))
 	for !w.Window.Closed() {
 		w.Window.Clear(image.Black)
-		fmt.Println(w.Sprites)
 		for i := 0; i < len(w.Sprites); i++ {
 			w.Sprites[i].PxlSprite.Draw(w.Window, w.Sprites[i].Matrix)
 		}
@@ -87,7 +86,7 @@ func NewWindow(width, height, i int) *Window {
 		//Sprites: []*Sprite{sprite},
 		Fin: make(chan bool),
 	}
-	_ = win.AddSprite("ressources/map.png")
+	_ = win.NewSprite("ressources/map.png")
 	go win.Draw()
 	return &win
 }

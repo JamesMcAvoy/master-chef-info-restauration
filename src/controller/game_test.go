@@ -2,9 +2,14 @@ package controller
 
 import (
 	"gopkg.in/h2non/gock.v1"
+	"os"
 	"reflect"
 	"testing"
 )
+
+func init() {
+	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/JamesMcAvoy/resto")
+}
 
 var RequestTest = []struct {
 	input  map[string]interface{}
