@@ -3,9 +3,6 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
 	"net/http"
 )
 
@@ -33,15 +30,6 @@ func NewGame(width, height int, url string) *Game {
 		m[i] = v.(map[string]interface{})
 	}
 	for i, r := range m {
-		win, err := pixelgl.NewWindow(pixelgl.WindowConfig{
-			Title:  fmt.Sprintf("La salle du resto %v oui", i),
-			Bounds: pixel.R(0, 0, float64(width), float64(height)),
-			VSync:  true,
-		})
-		if err != nil {
-			panic(err)
-		}
-
 		hor := r["horaires"].([]interface{})
 		h := make([][2]float64, len(hor))
 		for i, v := range hor {
@@ -60,14 +48,14 @@ func NewGame(width, height int, url string) *Game {
 		intToStr(pl, p)
 		intToStr(de, d)
 		game.Restos = append(game.Restos, NewResto(
-			win, int(r["temps"].(float64)), int(r["acceleration"].(float64)), false, h,
-			e, p, d,
+			width, height, int(r["temps"].(float64)), int(r["acceleration"].(float64)),
+			i, false, h, e, p, d,
 		))
 	}
 	return &game
 }
 
-// Effectue une requête au serveur, retourne une map du JSON retourné
+// Effectue une requête au serveur, retourne une map du JSON retourné par le serveur.
 func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
 	msg, err := json.Marshal(ob)
 	if err != nil {
@@ -91,7 +79,7 @@ func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
 	return repMap, nil
 }
 
-// Converti un array d'interfaces en array de strings
+// Convertit un array d'interfaces en array de strings
 func intToStr(intefaceArray []interface{}, strArray []string) {
 	for i, v := range intefaceArray {
 		strArray[i] = v.(string)

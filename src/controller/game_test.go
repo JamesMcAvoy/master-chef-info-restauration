@@ -36,7 +36,7 @@ func TestReq(t *testing.T) {
 var NewGameTest = []struct {
 	width, height int
 	url           string
-	game          bool // Game a-t-il au moins 1 resto?
+	game          bool // Game a au moins 1 resto?
 	apanic        bool // NewGame déclenche une panique?
 }{
 	{1280, 720, "http://url.net", true, false},

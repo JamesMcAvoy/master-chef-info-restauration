@@ -4,7 +4,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/faiface/pixel/pixelgl"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 
 const (
 	width  = 1280
-	height = 720
+	height = 704
 	url    = "http://127.0.0.1:9090/"
 	// Jusqu'à ce qu'on lie les 2 projets:
 	acceleration = 60 // Accélération initiale du temps
@@ -26,7 +25,21 @@ func run() {
 	time.Sleep(50 * time.Millisecond)
 
 	game := controller.NewGame(width, height, url)
-	fmt.Println(game)
+	fin := make(chan bool)
+	for i, r := range game.Restos {
+		go func(i int, r *controller.Resto) {
+			<-r.Win.Fin
+			if len(game.Restos) > 1 {
+				// Supprime le restaurant en évitant les memory leaks
+				game.Restos[i] = game.Restos[len(game.Restos)-1]
+				game.Restos[len(game.Restos)-1] = nil
+				game.Restos = game.Restos[:len(game.Restos)-1]
+			} else {
+				fin <- true
+			}
+		}(i, r)
+	}
+	<-fin
 }
 
 func main() {

@@ -53,7 +53,7 @@ Sinon:
 {
     "sauvegarde": true,
     "temps": 0,
-    "etat": " dump de l'objet restaurant"
+    "etat": "dump de l'objet restaurant"
 }
 ```
 
@@ -68,7 +68,7 @@ Sinon:
 ```json
 {
     "type": "acceleration",
-    "val": 60"
+    "val": 60
 }
 ```
 
