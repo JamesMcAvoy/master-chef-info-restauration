@@ -7,7 +7,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"net/http"
-	"time"
 )
 
 // Game représente l'"objet principal".
@@ -17,31 +16,7 @@ type Game struct {
 	Restos []*Resto
 }
 
-// Effectue une map au serveur, retourne la map de la réponse
-func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
-	msg, err := json.Marshal(ob)
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequest("POST", c.Url, bytes.NewBuffer(msg))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	var repMap map[string]interface{}
-	if err = json.NewDecoder(resp.Body).Decode(&repMap); err != nil {
-		return nil, err
-	}
-	return repMap, nil
-}
-
-// Initialisation des restos, connection au serveur
+// Initialisation des restos et connection au serveur
 func NewGame(width, height int, url string) *Game {
 	game := Game{
 		Url: url,
@@ -92,7 +67,31 @@ func NewGame(width, height int, url string) *Game {
 	return &game
 }
 
-// Converts an array of interfaces to an array of strings
+// Effectue une requête au serveur, retourne une map du JSON retourné
+func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
+	msg, err := json.Marshal(ob)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", c.Url, bytes.NewBuffer(msg))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var repMap map[string]interface{}
+	if err = json.NewDecoder(resp.Body).Decode(&repMap); err != nil {
+		return nil, err
+	}
+	return repMap, nil
+}
+
+// Converti un array d'interfaces en array de strings
 func intToStr(intefaceArray []interface{}, strArray []string) {
 	for i, v := range intefaceArray {
 		strArray[i] = v.(string)

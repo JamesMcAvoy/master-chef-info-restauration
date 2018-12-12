@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/faiface/pixel/pixelgl"
 	"time"
 )
@@ -39,7 +38,6 @@ func NewResto(win *pixelgl.Window, temps, accel int, pause bool, h [][2]float64,
 // Incrémente le temps dans le restaurant
 func (r *Resto) incTick() {
 	for {
-		fmt.Println(r.Temps)
 		select {
 		case <-r.tick:
 			if r.Pause == false {

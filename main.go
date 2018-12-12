@@ -1,19 +1,14 @@
-// Partie "vue" du projet C#/.NET (sans .NET ni C#)
+// Partie "salle" du projet C#/.NET (sans .NET ni C#)
 // Affiche et gère le restaurant, communique avec un serveur qui gère la cuisine.
-// Implémente la vue et la partie du contrôleur gérant la salle du resto
-// Le serveur gère le contrôleur de la cuisine et le modèle
 
 package main
 
 import (
 	"fmt"
+	"github.com/faiface/pixel/pixelgl"
 	"time"
 
-	//"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
-
 	"github.com/JamesMcAvoy/resto/src/controller"
-	//"github.com/JamesMcAvoy/resto/src/view"
 )
 
 const (

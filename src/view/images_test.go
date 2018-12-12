@@ -1,8 +1,6 @@
 package view
 
 import (
-	//"github.com/faiface/pixel"
-	//"image"
 	"testing"
 )
 
