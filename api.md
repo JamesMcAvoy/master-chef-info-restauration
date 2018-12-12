@@ -72,7 +72,16 @@ Sinon:
 }
 ```
 
-### commandes:
+### Demande de pause:
+```json
+{
+    "type": "pause",
+    "pause": true
+}
+```
+ou "false" pour remettre le resto en marche
+
+### Commandes:
 ```json
 {
     "type": "commande",
@@ -121,11 +130,3 @@ Liste de tous les retours de matériel commun possible:
 * serviette
 * nappe
 
-### Demande de pause:
-```json
-{
-    "type": "pause",
-    "pause": true
-}
-```
-ou "false" pour remettre le resto en marche
