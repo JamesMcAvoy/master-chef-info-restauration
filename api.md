@@ -52,7 +52,6 @@ Sinon:
 ```json
 {
     "sauvegarde": true,
-    "temps": 0,
     "etat": "dump de l'objet restaurant"
 }
 ```
@@ -82,9 +81,13 @@ Sinon:
 ou "false" pour remettre le resto en marche
 
 ### Commandes:
+Les clients commandent les entrées, les plats et les desserts en même temps,
+mais ils ne sont pas livrés en même temps.
+L'ID est nécessaire pour savoir à qui envoyer les plats et les desserts plus tard.
 ```json
 {
     "type": "commande",
+    "id": 12,
     "commande": {
         "entrees": [
             "tableau de strings avec le nom des entrées"
@@ -99,10 +102,15 @@ ou "false" pour remettre le resto en marche
 }
 
 ```
+
 ### Retour du matériel commun:
+L'ID est l'ID de la commande du client qui a utilisé le matériel. 
+Par exemple, la cuisine sait qu'elle doit envoyer le plat quand le matériel retourné 
+a l'ID d'une commande qui a seulement déjà reçu une entrée.
 ```json
 {
     "type": "materiel",
+    "id": 12,
     "materiel": [
         {
             "type": "fourchette",
