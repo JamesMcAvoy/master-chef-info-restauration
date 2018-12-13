@@ -12,16 +12,15 @@ import (
 )
 
 // Sprite: Struct contenant le sprite à afficher et sa matrice.
+// Toutes les entités s'affichant à l'écran devront implémenter *Sprite.
+// Le constructeur place également un pointeur vers l'objet créé dans la fenêtre.
+// Donc il suffit de modifier la struct dans l'objet pour changer sa position à l'écran.
 type Sprite struct {
 	PxlSprite *pixel.Sprite
 	Matrix    pixel.Matrix
 }
 
 // Window: Chaque restaurant possède une fenêtre. Chaque fenêtre possède un array de pointeurs de sprite.
-// Toutes les entités (serveurs, tables...) affichés à l'écran devront avoir un pointeur de sprite
-// pointant vers un élément de ce tableau.
-// Ainsi, simplement modifier la matrice de l'élément dans le controller changera automatiquement sa
-// position dans l'interface graphique.
 type Window struct {
 	Window  *pixelgl.Window
 	Sprites []*Sprite
