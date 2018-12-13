@@ -36,6 +36,7 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 	}
 	resto.tick = time.Tick(time.Second / time.Duration(accel))
 	go resto.loop()
+	resto.Personnes = append(resto.Personnes, NewMaitreHotel(&resto))
 	resto.Personnes = append(resto.Personnes, NewClient(&resto))
 	return &resto
 }

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/JamesMcAvoy/resto/src/view"
 )
 
@@ -15,11 +14,25 @@ type Client struct {
 
 func NewClient(r *Resto) Client {
 	var c Client
-	c.Sprite = r.Win.NewSprite("ressources/LeStig.png")
-	c.Sprite.Matrix = c.Sprite.Matrix.Scaled(r.Win.Window.Bounds().Center(), 0.1)
+	c.Sprite = r.Win.NewSprite("ressources/LeStig.png", 0.2)
 	return c
 }
 
 func (c Client) Act() {
-	fmt.Println("bonjour je suis un client")
+	c.Sprite.Move(2, 1)
+}
+
+type MaitreHotel struct {
+	Sprite *view.Sprite
+}
+
+func NewMaitreHotel(r *Resto) MaitreHotel {
+	var m MaitreHotel
+	m.Sprite = r.Win.NewSprite("ressources/maitrehotel.png", 1)
+	m.Sprite.Pos(40, 550)
+	return m
+}
+
+func (m MaitreHotel) Act() {
+
 }

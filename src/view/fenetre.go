@@ -8,27 +8,28 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"image"
 	"time"
-	//"unicode"
 )
 
 // Sprite: Struct contenant le sprite à afficher et sa matrice.
 // Toutes les entités s'affichant à l'écran devront implémenter *Sprite.
 // Le constructeur place également un pointeur vers l'objet créé dans la fenêtre.
-// Donc il suffit de modifier la struct dans l'objet pour changer sa position à l'écran.
+// Donc il suffit de modifier Objet.Sprite.Matrix pour changer sa position à l'écran.
 type Sprite struct {
 	PxlSprite *pixel.Sprite
 	Matrix    pixel.Matrix
 }
 
-// Window: Chaque restaurant possède une fenêtre. Chaque fenêtre possède un array de pointeurs de sprite.
-type Window struct {
-	Window  *pixelgl.Window
-	Sprites []*Sprite
-	Fin     chan bool
+// Déplace le sprite de x pixels horizontalement et y verticalement
+func (s *Sprite) Move(x, y float64) {
+	s.Matrix = s.Matrix.Moved(pixel.V(x, y))
+}
+
+func (s *Sprite) Pos(x, y float64) {
+	s.Matrix = pixel.IM.Moved(pixel.V(x, y))
 }
 
 // Ajoute un sprite à l'interface graphique
-func (w *Window) NewSprite(path string) *Sprite {
+func (w *Window) NewSprite(path string, scale float64) *Sprite {
 	img, err := LoadPicture(path)
 	if err != nil {
 		panic(err)
@@ -36,10 +37,17 @@ func (w *Window) NewSprite(path string) *Sprite {
 	var sprite Sprite
 	sprite.PxlSprite = pixel.NewSprite(img, img.Bounds())
 	sprite.Matrix = pixel.IM.Moved(w.Window.Bounds().Center())
-	sprite.Matrix = sprite.Matrix.Scaled(w.Window.Bounds().Center(), 2)
+	sprite.Matrix = sprite.Matrix.Scaled(w.Window.Bounds().Center(), scale)
 	w.Sprites = append(w.Sprites, &sprite)
 	return &sprite
 
+}
+
+// Window: Chaque restaurant possède une fenêtre. Chaque fenêtre possède un array de pointeurs de sprite.
+type Window struct {
+	Window  *pixelgl.Window
+	Sprites []*Sprite
+	Fin     chan bool
 }
 
 // Fonction lancée à l'initialisation du restaurant
@@ -85,7 +93,7 @@ func NewWindow(width, height, i int) *Window {
 		//Sprites: []*Sprite{sprite},
 		Fin: make(chan bool),
 	}
-	_ = win.NewSprite("ressources/map.png")
+	_ = win.NewSprite("ressources/map.png", 2)
 	go win.Draw()
 	return &win
 }
