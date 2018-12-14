@@ -4,6 +4,7 @@ Implémente la vue et la partie du contrôleur gérant la salle.
 
 ```
 go get github.com/faiface/pixel
+go get github.com/andlabs/ui/...
 go get gopkg.in/h2non/gock.v1
 go get github.com/JamesMcAvoy/resto
 resto

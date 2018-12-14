@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 // Game représente l'"objet principal".
@@ -51,6 +52,9 @@ func NewGame(width, height int, url string) *Game {
 			width, height, int(r["temps"].(float64)), int(r["acceleration"].(float64)),
 			i, false, h, e, p, d,
 		))
+		// Pixel semble plus être un peu moins cassé quand il n'a pas à créer plusieurs fenêtres en même temps
+		// (c'est peut-être totalement faux)
+		time.Sleep(time.Millisecond)
 	}
 	return &game
 }

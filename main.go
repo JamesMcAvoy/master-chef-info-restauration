@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/andlabs/ui"
 	"github.com/faiface/pixel/pixelgl"
 	"os"
 	"time"
@@ -45,6 +46,12 @@ func run() {
 }
 
 func main() {
+	go func() {
+		err := ui.Main(func() {})
+		if err != nil {
+			panic(err)
+		}
+	}()
 	err := os.Chdir(os.Getenv("GOPATH") + "/src/github.com/JamesMcAvoy/resto")
 	if err != nil {
 		fmt.Println(err.Error())

@@ -8,16 +8,17 @@ import (
 
 // Struct restaurant
 type Resto struct {
-	Win       *view.Window
-	Temps     int
-	accel     int
-	tick      <-chan time.Time
-	Pause     bool
-	Horaires  [][2]float64
-	Entrees   []string
-	Plats     []string
-	Desserts  []string
-	Personnes []Personne
+	Win        *view.Window
+	Temps      int
+	accel      int
+	tick       <-chan time.Time
+	Pause      bool
+	Horaires   [][2]float64
+	Entrees    []string
+	Plats      []string
+	Desserts   []string
+	Clickables []Clickable
+	Personnes  []Personne
 }
 
 // Constructeur de restaurant
@@ -38,6 +39,8 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 	go resto.loop()
 	resto.Personnes = append(resto.Personnes, NewMaitreHotel(&resto))
 	resto.Personnes = append(resto.Personnes, NewClient(&resto))
+	time.Sleep(time.Second)
+
 	return &resto
 }
 
@@ -45,6 +48,10 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 func (r *Resto) loop() {
 	for {
 		select {
+		case mousePos := <-r.Win.Click:
+			for i := len(r.Personnes) - 1; i >= 0; i-- {
+				r.Personnes[i].CheckClick(mousePos)
+			}
 		case <-r.tick:
 			for _, p := range r.Personnes {
 				p.Act()
