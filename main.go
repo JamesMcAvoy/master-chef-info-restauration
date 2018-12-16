@@ -4,12 +4,11 @@
 package main
 
 import (
+	"github.com/JamesMcAvoy/resto/src/controller"
 	"github.com/andlabs/ui"
 	"github.com/faiface/pixel/pixelgl"
 	"os"
 	"time"
-
-	"github.com/JamesMcAvoy/resto/src/controller"
 )
 
 const (
@@ -32,7 +31,7 @@ func run() {
 		go func(i int, r *controller.Resto) {
 			<-r.Win.Fin
 			if len(game.Restos) > 1 {
-				// Supprime le restaurant en évitant les memory leaks
+				// Supprime le restaurant quand sa fenêtre est fermée
 				game.Restos[i] = game.Restos[len(game.Restos)-1]
 				game.Restos[len(game.Restos)-1] = nil
 				game.Restos = game.Restos[:len(game.Restos)-1]

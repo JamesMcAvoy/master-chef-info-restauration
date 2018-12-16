@@ -2,12 +2,12 @@ package controller
 
 import (
 	"fmt"
+	"github.com/JamesMcAvoy/resto/src/view"
+	"github.com/faiface/pixel"
 	"math"
 	"math/rand"
 	"strconv"
 	"time"
-
-	"github.com/JamesMcAvoy/resto/src/view"
 )
 
 // Struct restaurant
@@ -76,10 +76,13 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 		index := 0
 		for j := range tablePos {
 			go func(i, j, index int) {
-				resto.Carrés[i].Tables = append(resto.Carrés[i].Tables, NewTable(
+				table := NewTable(
 					tailles[index],
 					[4]int{carPos[i][0] + tablePos[j][0], carPos[i][1] + tablePos[j][1], carPos[i][0] + tablePos[j][2], carPos[i][1] + tablePos[j][3]},
-					&resto))
+					&resto,
+				)
+				resto.Carrés[i].Tables = append(resto.Carrés[i].Tables, table)
+				resto.Clickables = append(resto.Clickables, table)
 			}(i, j, index)
 			index++
 		}
@@ -98,8 +101,10 @@ func (r *Resto) loop() {
 	for {
 		select {
 		case mousePos := <-r.Win.Click:
-			for i := len(r.Clickables) - 1; i >= 0; i-- {
-				r.Clickables[i].CheckClick(mousePos)
+			for i := range r.Clickables {
+				if r.Clickables[i].CheckClick(mousePos) {
+					break
+				}
 			}
 		case <-r.tick:
 			for _, p := range r.Personnes {
@@ -174,10 +179,11 @@ type Carré struct {
 }
 
 type Table struct {
-	Sprite *view.Sprite
-	Taille int
-	Nom    string
-	Coords [4]int
+	Sprite  *view.Sprite
+	Taille  int
+	Nom     string
+	Coords  [4]int
+	Occupée bool
 }
 
 func NewTable(taille int, coords [4]int, r *Resto) Table {
@@ -186,5 +192,21 @@ func NewTable(taille int, coords [4]int, r *Resto) Table {
 	t.Taille = taille
 	t.Sprite = r.Win.NewSprite(fmt.Sprintf("ressources/table%v.png", taille), 0.85)
 	t.Sprite.Pos(float64((coords[2]+coords[0])/2), float64((coords[3]+coords[1])/2))
+	time.Sleep(time.Second)
 	return t
+}
+
+func (t Table) CheckClick(mousePos pixel.Vec) bool {
+	if view.CheckIfClicked(t.Sprite.PxlSprite.Picture().Bounds(), t.Sprite.Matrix, mousePos) {
+		go view.Popup(t.Nom, t.String())
+		return true
+	}
+	return false
+}
+
+func (t Table) String() string {
+	if t.Occupée {
+		return fmt.Sprintf("Table de %v personnes occupée", t.Taille)
+	}
+	return fmt.Sprintf("Table de %v personnes libre", t.Taille)
 }

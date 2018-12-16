@@ -77,7 +77,6 @@ Réponse attendue si pas de restauration de sauvegarde:
                     "8": 3,
                     "10": 1
                 }
-
             ]
         }
     ]

@@ -1,12 +1,10 @@
 package view
 
 import (
+	"github.com/faiface/pixel"
 	"image"
 	_ "image/png"
 	"os"
-
-	"github.com/faiface/pixel"
-	//"github.com/faiface/pixel/pixelgl"
 )
 
 // Charge une image pour la librairie graphique

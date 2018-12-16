@@ -52,15 +52,17 @@ var CheckIfClickedTest = []struct {
 }{
 	// Image de 0x0, ne doit pas être cliquée
 	{pixel.R(0, 0, 0, 0), pixel.IM, pixel.V(0, 0), false},
-	// Image de 0x50, placée à la position 50, 50, doit être cliquée à 75, 75
-	{pixel.R(0, 0, 50, 50), pixel.IM.Moved(pixel.V(50, 50)), pixel.V(75, 75), true},
+	// Image de 0x50, placée à la position 50, 50, ne doit pas être cliquée à 76, 76
+	// La transformation de la matrice est appliquée au centre du rectangle, pas au bord
+	{pixel.R(0, 0, 50, 50), pixel.IM.Moved(pixel.V(50, 50)), pixel.V(76, 76), false},
 	{pixel.R(0, 0, 50, 50), pixel.IM.Moved(pixel.V(0, 50)), pixel.V(75, 175), false},
 	{pixel.R(0, 0, 50, 50), pixel.IM.Moved(pixel.V(50, 50)), pixel.V(25, 25), false},
 
-	// Image de 50x50, placée à la position 50, 0, taille x2, doit être cliquée à 130, 75
-	{pixel.R(0, 0, 50, 50), pixel.Matrix{2, 0, 0, 2, 50, 0}, pixel.V(130, 75), true},
+	// Image de 50x50, placée à la position 50, 0, taille x2, ne doit pas être cliquée à 130, 75
+	{pixel.R(0, 0, 50, 50), pixel.Matrix{2, 0, 0, 2, 50, 0}, pixel.V(130, 75), false},
 	// Image de 50x50, placée à la position 0, 50, taille x0.5, ne doit pas être cliquée à 80, 30
 	{pixel.R(0, 0, 50, 50), pixel.Matrix{0.5, 0, 0, 0.5, 0, 50}, pixel.V(30, 80), false},
+	{pixel.R(0, 0, 50, 50), pixel.Matrix{0.5, 0, 20, 0.5, 0, 20}, pixel.V(10, 10), true},
 }
 
 func TestCheckIfClicked(t *testing.T) {

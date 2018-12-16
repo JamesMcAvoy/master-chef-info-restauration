@@ -148,8 +148,10 @@ func Popup(title, content string) {
 // Vérifie si une entité est cliquée.
 // Entrées: rectangle et matrice de l'entité, vecteur du curseur.
 func CheckIfClicked(rect pixel.Rect, mat pixel.Matrix, vect pixel.Vec) bool {
-	if (rect.Min.X*mat[0]+mat[4] < vect.X) && (rect.Max.X*mat[0]+mat[4] > vect.X) {
-		if (rect.Min.Y*mat[3]+mat[5] < vect.Y) && (rect.Max.Y*mat[3]+mat[5] > vect.Y) {
+	vect.X += (rect.Max.X / 2) * mat[0]
+	vect.Y += (rect.Max.Y / 2) * mat[3]
+	if (rect.Min.X+mat[4] < vect.X) && (rect.Max.X*mat[0]+mat[4] > vect.X) {
+		if (rect.Min.Y+mat[5] < vect.Y) && (rect.Max.Y*mat[3]+mat[5] > vect.Y) {
 			return true
 		}
 	}
