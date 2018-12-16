@@ -70,7 +70,7 @@ func NewMaitreHotel(r *Resto) MaitreHotel {
 	var m MaitreHotel
 	m.Nom = "Maître d'ĥôtel"
 	m.Sprite = r.Win.NewSprite("ressources/maitrehotel.png", 1)
-	m.Sprite.Pos(140, 550)
+	m.Sprite.Pos(40, 550)
 	return m
 }
 
