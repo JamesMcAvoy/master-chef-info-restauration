@@ -69,9 +69,7 @@ Réponse attendue si pas de restauration de sauvegarde:
                     "6": 3,
                     "8": 2,
                     "10": 1
-                }
-            ],
-            "carres": [
+                },
                 {
                     "2": 5,
                     "4": 5,
@@ -79,6 +77,7 @@ Réponse attendue si pas de restauration de sauvegarde:
                     "8": 3,
                     "10": 1
                 }
+
             ]
         }
     ]
