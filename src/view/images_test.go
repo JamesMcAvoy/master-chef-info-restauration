@@ -12,7 +12,7 @@ type PictureTest struct {
 
 func TestLoadPicture(t *testing.T) {
 	want := []PictureTest{
-		{"../../ressources/map.png", true, false},
+		{"ressources/map.png", true, false},
 		{"img_qui_existe_pas.png", false, true},
 	}
 	for _, r := range want {

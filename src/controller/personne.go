@@ -25,6 +25,7 @@ type Personne interface {
 type Client struct {
 	Nom    string
 	Sprite *view.Sprite
+	Etat   string
 }
 
 // Constructeur de clients
@@ -32,6 +33,8 @@ func NewClient(r *Resto) Client {
 	var c Client
 	c.Nom = "Client"
 	c.Sprite = r.Win.NewSprite("ressources/LeStig.png", 0.2)
+	c.Sprite.Pos(10, 40)
+	c.Etat = "En attente d'attribution de table"
 	return c
 }
 
@@ -44,7 +47,7 @@ func (c Client) CheckClick(mousePos pixel.Vec) {
 
 // Stringer du client, sera affiché dans le popup décrivant le client
 func (c Client) String() string {
-	return fmt.Sprintf("Client qui marche")
+	return fmt.Sprintf("%s", c.Etat)
 }
 
 // Action effectuée par le client à chaque tick du restaurant

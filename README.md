@@ -9,5 +9,5 @@ go get gopkg.in/h2non/gock.v1
 go get github.com/JamesMcAvoy/resto
 resto
 cd $GOPATH/github.com/JamesMcAvoy/resto
-go test ./...
+go test ./... # ou go test -v ./...
 ```

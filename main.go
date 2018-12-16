@@ -4,7 +4,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/andlabs/ui"
 	"github.com/faiface/pixel/pixelgl"
 	"os"
@@ -54,7 +53,7 @@ func main() {
 	}()
 	err := os.Chdir(os.Getenv("GOPATH") + "/src/github.com/JamesMcAvoy/resto")
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 	pixelgl.Run(run)
 }

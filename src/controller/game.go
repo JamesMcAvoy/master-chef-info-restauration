@@ -45,13 +45,12 @@ func NewGame(width, height int, url string) *Game {
 		e := make([]string, len(en))
 		p := make([]string, len(pl))
 		d := make([]string, len(de))
-		intToStr(en, e)
-		intToStr(pl, p)
-		intToStr(de, d)
+		IntToStr(en, e)
+		IntToStr(pl, p)
+		IntToStr(de, d)
 		game.Restos = append(game.Restos, NewResto(
 			width, height, int(r["temps"].(float64)), int(r["acceleration"].(float64)),
-			i, false, h, e, p, d,
-		))
+			i, false, h, e, p, d, r["carres"].([]interface{})))
 		// Pixel semble plus être un peu moins cassé quand il n'a pas à créer plusieurs fenêtres en même temps
 		// (c'est peut-être totalement faux)
 		time.Sleep(time.Millisecond)
@@ -84,8 +83,13 @@ func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
 }
 
 // Convertit un array d'interfaces en array de strings
-func intToStr(intefaceArray []interface{}, strArray []string) {
+func IntToStr(intefaceArray []interface{}, strArray []string) {
 	for i, v := range intefaceArray {
-		strArray[i] = v.(string)
+		switch v.(type) {
+		case string:
+			strArray[i] = v.(string)
+		default:
+			strArray[i] = ""
+		}
 	}
 }

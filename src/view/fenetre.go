@@ -26,7 +26,8 @@ func (s *Sprite) Move(x, y float64) {
 }
 
 func (s *Sprite) Pos(x, y float64) {
-	s.Matrix = pixel.IM.Moved(pixel.V(x, y))
+	s.Matrix[4] = x
+	s.Matrix[5] = y
 }
 
 // Ajoute un sprite à l'interface graphique
@@ -147,10 +148,8 @@ func Popup(title, content string) {
 // Vérifie si une entité est cliquée.
 // Entrées: rectangle et matrice de l'entité, vecteur du curseur.
 func CheckIfClicked(rect pixel.Rect, mat pixel.Matrix, vect pixel.Vec) bool {
-	if (rect.Min.X+mat[4] < vect.X) && (rect.Max.X+mat[4] > vect.X) {
-		fmt.Println("X: ok")
-		if (rect.Min.Y+mat[5] < vect.Y+30) && (rect.Max.Y+mat[5] > vect.Y+30) {
-			fmt.Println("Y: ok")
+	if (rect.Min.X*mat[0]+mat[4] < vect.X) && (rect.Max.X*mat[0]+mat[4] > vect.X) {
+		if (rect.Min.Y*mat[3]+mat[5] < vect.Y) && (rect.Max.Y*mat[3]+mat[5] > vect.Y) {
 			return true
 		}
 	}

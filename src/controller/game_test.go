@@ -2,13 +2,36 @@ package controller
 
 import (
 	"gopkg.in/h2non/gock.v1"
-	"os"
 	"reflect"
 	"testing"
 )
 
-func init() {
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/JamesMcAvoy/resto")
+var NewGameTest = []struct {
+	width, height int
+	url           string
+	game          bool // Game a au moins 1 resto?
+	apanic        bool // NewGame déclenche une panique?
+}{
+	{1280, 720, "http://url.net", true, false},
+	{1280, 720, "http://url_qui_marche.pas", false, true},
+}
+
+func TestNewGame(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://url.net").Get("/").Reply(200).File("../../testdata/bonjour.json")
+	for _, v := range NewGameTest {
+		defer func() {
+			if r := recover(); (r == nil) != v.apanic {
+				t.Errorf("NewGame(%q, %q, %q): a paniqué: %t attendu, %t reçu",
+					v.width, v.height, v.url, v.apanic, (r == nil))
+			}
+		}()
+		game := NewGame(v.width, v.height, v.url)
+		if (len(game.Restos) > 0) != v.game {
+			t.Errorf("NewGame(%q, %q, %q): au moins 1 restaurant: %t attendu, %t reçu",
+				v.width, v.height, v.url, len(game.Restos) > 0, v.game)
+		}
+	}
 }
 
 var RequestTest = []struct {
@@ -38,30 +61,20 @@ func TestReq(t *testing.T) {
 	}
 }
 
-var NewGameTest = []struct {
-	width, height int
-	url           string
-	game          bool // Game a au moins 1 resto?
-	apanic        bool // NewGame déclenche une panique?
+var IntToStrTest = []struct {
+	input    []interface{}
+	output   []string
+	expected []string
 }{
-	{1280, 720, "http://url.net", true, false},
-	{1280, 720, "http://url_qui_marche.pas", false, true},
+	{[]interface{}{"hop", "le", "test"}, make([]string, 3), []string{"hop", "le", "test"}},
+	{[]interface{}{"hop", 2, "test"}, make([]string, 3), []string{"hop", "", "test"}},
 }
 
-func TestNewGame(t *testing.T) {
-	defer gock.Off()
-	gock.New("http://url.net").Get("/").Reply(200).File("../../testdata/bonjour.json")
-	for _, v := range NewGameTest {
-		defer func() {
-			if r := recover(); (r == nil) != v.apanic {
-				t.Errorf("NewGame(%q, %q, %q): a paniqué: %t attendu, %t reçu",
-					v.width, v.height, v.url, v.apanic, (r == nil))
-			}
-		}()
-		game := NewGame(v.width, v.height, v.url)
-		if (len(game.Restos) > 0) != v.game {
-			t.Errorf("NewGame(%q, %q, %q): au moins 1 restaurant: %t attendu, %t reçu",
-				v.width, v.height, v.url, len(game.Restos) > 0, v.game)
+func TestIntToStr(t *testing.T) {
+	for _, v := range IntToStrTest {
+		IntToStr(v.input, v.output)
+		if !reflect.DeepEqual(v.output, v.expected) {
+			t.Errorf("IntToStr(%s, []): %s attendu, %s reçu", v.input, v.expected, v.output)
 		}
 	}
 }
