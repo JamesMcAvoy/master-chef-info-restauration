@@ -27,20 +27,56 @@ Réponse attendue si pas de restauration de sauvegarde:
                 [19, 22]
             ],
             "entrees": [
-                "tableau de strings contenant toutes les entrées"
+                "Feuilleté au crabe",
+                "Œufs cocotte",
+                "Tarte au thon",
+                "Pics apéritifs de roulés de crêpes au saumon",
+                "Salades de pâtes au thon",
+                "Œufs à la coque",
+                "Carotte à l'orange",
+                "Pommes de terre surprise",
+                "Cornets de saumon fumé",
+                "Brochettes melon et jambon"
             ],
             "plats": [
-                "tableau de strings"
+                "Crêpes poulet béchamel",
+                "Burger steack bacon",
+                "BLANCS DE POULET A LA CREME ET AU MIEL",
+                "Burger double steack",
+                "Burger saumon",
+                "steak frites",
+                "Nuggets frites",
+                "Spaguetti bolognaise",
+                "Fish ans chips",
+                "Burger fish"
             ],
             "desserts": [
-                "tableau de strings"
+                "Crêpes",
+                "TIRAMISU",
+                "MADELEINE AU MIEL",
+                "Gateau fondant au chocolat",
+                "Framboise et citron",
+                "Crème dessert légère",
+                "Mousse au chocolat",
+                "Pancakes",
+                "Salade de fruits d'été ",
+                "Glace chocolat"
+            ],
+            "carres": [
+                {
+                    "2": 5,
+                    "4": 5,
+                    "6": 3,
+                    "8": 2,
+                    "10": 1
+                }
             ],
             "carres": [
                 {
                     "2": 5,
                     "4": 5,
                     "6": 2,
-                    "8": 1,
+                    "8": 3,
                     "10": 1
                 }
             ]
