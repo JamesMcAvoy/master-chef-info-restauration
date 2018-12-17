@@ -21,7 +21,7 @@ type Resto struct {
 	Entrees     []string
 	Plats       []string
 	Desserts    []string
-	Carrés      []Carré
+	Carrés      []*Carré
 	Clickables  []Clickable
 	Personnes   []Personne
 }
@@ -42,7 +42,7 @@ func NewResto(width, height, temps, accel int, h [][2]float64, e, p, d []string,
 	}
 	for i := range h {
 		for j := range h[i] {
-			h[i][j] = h[i][j] * 3600 * 60
+			h[i][j] = h[i][j] * 3600
 		}
 	}
 	resto.Horaires = h
@@ -61,48 +61,12 @@ func NewResto(width, height, temps, accel int, h [][2]float64, e, p, d []string,
 		if carPos[i][3] == height {
 			carPos[i][3] -= 40
 		}
-		resto.Carrés = append(resto.Carrés, NewCarré(carPos[i]))
+		resto.Carrés = append(resto.Carrés, NewCarré(carPos[i], carrés[i].(map[string]interface{}), &resto))
 		// Place les tables
-		car := carrés[i].(map[string]interface{})
-		var tailles []int
-		tableCount := 0.0
-		for k, v := range car {
-			t, _ := strconv.Atoi(k)
-			for i := 0.0; i < v.(float64); i++ {
-				tailles = append(tailles, t)
-			}
-			tableCount += v.(float64)
-		}
-		for i := range tailles {
-			j := rand.Intn(i + 1)
-			tailles[i], tailles[j] = tailles[j], tailles[i]
-		}
-		tablePos := Répartit(
-			resto.Carrés[i].Coords[2]-resto.Carrés[i].Coords[0],
-			resto.Carrés[i].Coords[3]-resto.Carrés[i].Coords[1],
-			int(tableCount),
-		)
-		index := 0
-		for j := range tablePos {
-			go func(i, j, index int) {
-				table := NewTable(
-					tailles[index],
-					[4]int{
-						carPos[i][0] + tablePos[j][0], carPos[i][1] + tablePos[j][1],
-						carPos[i][0] + tablePos[j][2], carPos[i][1] + tablePos[j][3]},
-					&resto,
-				)
-				resto.Carrés[i].Tables = append(resto.Carrés[i].Tables, table)
-				resto.Clickables = append(resto.Clickables, table)
-			}(i, j, index)
-			index++
-		}
 	}
 	// Crée le maître d'hôtel et lance le restaurant
 	resto.tick = time.Tick(time.Second / time.Duration(accel))
 	resto.MaitreHotel = NewMaitreHotel(&resto)
-	resto.Personnes = append(resto.Personnes, resto.MaitreHotel)
-	resto.Clickables = append(resto.Clickables, resto.MaitreHotel)
 	go resto.loop()
 	return &resto
 }
@@ -139,7 +103,6 @@ func (r *Resto) loop() {
 				}
 			}
 		case scroll := <-r.Win.Scroll:
-			fmt.Println(r.accel)
 			acc := r.accel + scroll/10*r.accel
 			if acc > 1.2 {
 				r.accel = acc
@@ -216,36 +179,80 @@ func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 	}
 }
 
+// Ensemble de tables dont un groupe de serveurs s'occupe
 type Carré struct {
 	// basGaucheX, basGaucheY, hautDroiteX, hautDroiteY
-	Coords   [4]int
-	Tables   []*Table
-	Serveurs []Serveur
+	Coords         [4]int
+	Tables         []*Table
+	ServeursLibres []*Serveur
+	Resto          *Resto
 }
 
-func NewCarré(pos [4]int) Carré {
-	c := Carré{Coords: pos}
-	return c
+// Crée un carré, lui attribue les tables et les serveurs
+func NewCarré(pos [4]int, car map[string]interface{}, resto *Resto) *Carré {
+	c := Carré{Coords: pos, Resto: resto}
+	var tailles []int
+	tableCount := 0.0
+	for k, v := range car {
+		t, _ := strconv.Atoi(k)
+		for i := 0.0; i < v.(float64); i++ {
+			tailles = append(tailles, t)
+		}
+		tableCount += v.(float64)
+	}
+	for i := range tailles {
+		j := rand.Intn(i + 1)
+		tailles[i], tailles[j] = tailles[j], tailles[i]
+	}
+	tablePos := Répartit(
+		c.Coords[2]-c.Coords[0],
+		c.Coords[3]-c.Coords[1],
+		int(tableCount),
+	)
+	index := 0
+	for j := range tablePos {
+		go func(j, index int) {
+			table := NewTable(
+				tailles[index],
+				[4]int{
+					pos[0] + tablePos[j][0], pos[1] + tablePos[j][1],
+					pos[0] + tablePos[j][2], pos[1] + tablePos[j][3]},
+				&c,
+			)
+			c.Tables = append(c.Tables, table)
+			resto.Clickables = append(resto.Clickables, table)
+		}(j, index)
+		index++
+	}
+	for i := 0.0; i <= tableCount/5; i++ {
+		c.ServeursLibres = append(c.ServeursLibres, NewServeur(&c))
+	}
+	return &c
 }
 
+// Table
 type Table struct {
 	Sprite  *view.Sprite
+	Carré   *Carré
 	Taille  int
 	Nom     string
 	Coords  [4]int
 	Occupée bool
 }
 
-func NewTable(taille int, coords [4]int, r *Resto) *Table {
+// Constructeur de table
+func NewTable(taille int, coords [4]int, c *Carré) *Table {
 	var t Table
 	t.Nom = "Une table"
 	t.Taille = taille
-	t.Sprite = r.Win.NewSprite(fmt.Sprintf("ressources/table%v.png", taille), 0.85)
+	t.Carré = c
+	t.Sprite = c.Resto.Win.NewSprite(fmt.Sprintf("ressources/table%v.png", taille), 0.85)
 	t.Sprite.Pos(float64((coords[2]+coords[0])/2), float64((coords[3]+coords[1])/2))
 	time.Sleep(time.Second)
 	return &t
 }
 
+// Ouvre un popup quand la table est cliquée
 func (t *Table) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(t.Sprite.PxlSprite.Picture().Bounds(), t.Sprite.Matrix, mousePos) {
 		go view.Popup(t.Nom, t.String())

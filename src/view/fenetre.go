@@ -15,6 +15,7 @@ import (
 // Toutes les entités s'affichant à l'écran devront implémenter *Sprite.
 // Le constructeur place également un pointeur vers l'objet créé dans la fenêtre.
 // Donc il suffit de modifier Objet.Sprite.Matrix pour changer sa position à l'écran.
+// Ou d'utiliser Objet.Sprite.Move, .Pos et .Goto
 type Sprite struct {
 	PxlSprite *pixel.Sprite
 	Matrix    pixel.Matrix
@@ -28,6 +29,28 @@ func (s *Sprite) Move(x, y float64) {
 func (s *Sprite) Pos(x, y float64) {
 	s.Matrix[4] = x
 	s.Matrix[5] = y
+}
+
+// Déplace un sprite vers le centre du sprite dest + x pixels horizontalement et y pixels verticalement.
+// Retourne "true" si le sprite est arrivé à destination.
+func (s *Sprite) Goto(dest *Sprite, x, y float64) bool {
+	var p = [2]float64{s.Matrix[4], s.Matrix[5]}
+	if dest.Matrix[4]+x > s.Matrix[4] {
+		s.Move(3, 0)
+	}
+	if dest.Matrix[4]+x < s.Matrix[4] {
+		s.Move(-3, 0)
+	}
+	if dest.Matrix[5] > s.Matrix[5]+y {
+		s.Move(0, 3)
+	}
+	if dest.Matrix[5] < s.Matrix[5]+y {
+		s.Move(0, -3)
+	}
+	if p[0] == s.Matrix[4] && p[1] == s.Matrix[5] {
+		return true
+	}
+	return false
 }
 
 // Ajoute un sprite à l'interface graphique
@@ -68,9 +91,7 @@ func (w *Window) Draw() {
 			w.Click <- w.Window.MousePosition()
 		}
 		if w.Window.MouseScroll().Y != 0 {
-			fmt.Println("oui")
 			w.Scroll <- w.Window.MouseScroll().Y
-			fmt.Println("non")
 		}
 		w.Window.Clear(image.Black)
 		for i := 0; i < len(w.Sprites); i++ {

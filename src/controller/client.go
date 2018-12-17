@@ -22,7 +22,7 @@ type Client struct {
 func NewClient(r *Resto) *Client {
 	var c Client
 	c.Resto = r
-	c.Nom = "Client"
+	c.Nom = "Clients"
 	c.Sprite = r.Win.NewSprite("ressources/LeStig.png", 0.2)
 	c.Sprite.Pos(20, 350)
 	c.Etat = "Se demande si le restaurant est ouvert"
@@ -55,35 +55,22 @@ func (c *Client) Act() {
 	case "S'en va":
 		c.Sprite.Move(-2, 0)
 	case "Se dirige vers le maître d'hôtel":
-		c.Goto(c.Resto.MaitreHotel.Sprite)
+		if c.Sprite.Goto(c.Resto.MaitreHotel.Sprite, 50, 0) {
+			c.Restant = 0
+		}
 	}
 	if c.Restant == 0 {
 		switch c.Etat {
 		case "Se demande si le restaurant est ouvert":
-			c.Restant = 30
+			c.Restant = -1
 			if c.Resto.EstOuvert() {
 				c.Etat = "Se dirige vers le maître d'hôtel"
 			} else {
 				c.Etat = "S'en va"
 			}
-		case "Se dirige vers le maitre d'hotel":
+		case "Se dirige vers le maître d'hôtel":
+			c.Resto.MaitreHotel.Queue = append(c.Resto.MaitreHotel.Queue, c)
 			c.Etat = "En attente d'attribution de table"
 		}
 	}
-}
-
-func (c *Client) Goto(*view.Sprite) {
-	if c.Resto.MaitreHotel.Sprite.Matrix[4]+50 > c.Sprite.Matrix[4] {
-		c.Sprite.Move(2, 0)
-	} else {
-		c.EstArrivé = true
-	}
-	if c.Resto.MaitreHotel.Sprite.Matrix[5] > c.Sprite.Matrix[5] {
-		c.Sprite.Move(0, 2)
-	} else {
-		if c.EstArrivé {
-			c.Restant = 0
-		}
-	}
-
 }

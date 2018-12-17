@@ -22,7 +22,40 @@ type Personne interface {
 
 // SERVEUR
 
-type Serveur struct{}
+// Serveur
+type Serveur struct {
+	Carré  *Carré
+	Nom    string
+	Etat   string
+	Sprite *view.Sprite
+}
+
+// Constructeur de serveur
+func NewServeur(c *Carré) *Serveur {
+	var s Serveur
+	s.Nom = "Un serveur"
+	s.Sprite = c.Resto.Win.NewSprite("ressources/serveur.png", 0.3)
+	s.Sprite.Pos(rand.Float64()*1000, rand.Float64()*700)
+	s.Carré = c
+	c.Resto.Personnes = append(c.Resto.Personnes, &s)
+	c.Resto.Clickables = append(c.Resto.Clickables, &s)
+	return &s
+}
+
+func (s *Serveur) Act() {}
+
+// Ouvre le popup décrivant l'état du serveur quand il est cliqué
+func (s *Serveur) CheckClick(mousePos pixel.Vec) bool {
+	if view.CheckIfClicked(s.Sprite.PxlSprite.Picture().Bounds(), s.Sprite.Matrix, mousePos) {
+		go view.Popup(s.Nom, s.String())
+		return true
+	}
+	return false
+}
+
+func (s *Serveur) String() string {
+	return "oh un serveur"
+}
 
 // MAITRE D'HOTEL
 
@@ -32,7 +65,7 @@ type MaitreHotel struct {
 	Nom            string
 	Etat           string
 	Sprite         *view.Sprite
-	Queue          []Client
+	Queue          []*Client
 	ProchainClient int
 }
 
@@ -44,6 +77,8 @@ func NewMaitreHotel(r *Resto) *MaitreHotel {
 	m.Sprite.Pos(40, 550)
 	m.ProchainClient = rand.Intn(300)
 	m.Resto = r
+	r.Personnes = append(r.Personnes, &m)
+	r.Clickables = append(r.Clickables, &m)
 	return &m
 }
 
@@ -62,12 +97,33 @@ func (m *MaitreHotel) String() string {
 }
 
 // Action effectuée par le maître d'hôtel à chaque tick du restaurant.
-// Arrivée des clients
 func (m *MaitreHotel) Act() {
 	m.ProchainClient--
 	// Arrivée des clients
 	if m.ProchainClient == 0 {
-		m.Queue = append(m.Queue, *NewClient(m.Resto))
-		m.ProchainClient = rand.Intn(20) + 1
+		NewClient(m.Resto)
+		m.ProchainClient = rand.Intn(300) + 1
 	}
+	// Attribution d'une table à un client de la file
+	for i := range m.Queue {
+		if table := m.TableLibre(m.Queue[i].Taille); table != nil {
+			fmt.Println(table.Carré.ServeursLibres[0])
+		}
+	}
+}
+
+// Retourne la table libre la plus petite pour le groupe qui arrive,
+// retourne nil si pas de table disponible
+func (m *MaitreHotel) TableLibre(taille int) *Table {
+	for taille <= 10 {
+		for i := range m.Resto.Carrés {
+			for j := range m.Resto.Carrés[i].Tables {
+				if m.Resto.Carrés[i].Tables[j].Taille == taille {
+					return m.Resto.Carrés[i].Tables[j]
+				}
+			}
+		}
+		taille += 1
+	}
+	return nil
 }
