@@ -30,7 +30,7 @@ var NewRestoTest = []NewRestoTestStruct{
 func TestNewResto(t *testing.T) {
 	for _, v := range NewRestoTest {
 		go func(l NewRestoTestStruct) {
-			resto := NewResto(1280, 704, l.temps, l.accel, 1, l.pause, [][2]float64{{2.0, 3.0}},
+			resto := NewResto(1280, 704, l.temps, l.accel, l.pause, [][2]float64{{2.0, 3.0}},
 				[]string{"e"}, []string{"p"}, []string{"d"}, []interface{}{})
 			time.Sleep(501 * time.Millisecond)
 			if l.tAttendu != resto.Temps {
@@ -40,6 +40,29 @@ func TestNewResto(t *testing.T) {
 		}(v)
 	}
 	time.Sleep(502 * time.Millisecond)
+}
+
+var EstOuvertTest = []struct {
+	temps    int
+	horaires [][2]float64
+	expected bool
+}{
+	{100, nil},
+	{100, [][2]float64{{0, 10}}, false},
+	{100, [][2]float64{{90, 110}}, true},
+	{100, [][2]float64{{90, 99}, {101, 130}}, false},
+	{100, [][2]float64{{90, 95}, {99, 130}}, true},
+}
+
+func TestEstOuvert(t *testing.T) {
+	resto := NewResto(1000, 1000, 0, 0.001, false, [][2]float64{}, []string{"e"}, []string{"p"}, []string{"d"}, []interface{}{})
+	for _, v := range EstOuvertTest {
+		resto.Temps = v.temps
+		resto.Horaires = v.horaires
+		if resto.EstOuvert() != v.expected {
+			t.Errorf("resto.EstOuvert(): temps %v, horaires %v, attendu %t, reçu %t", v.temps, v.horaires, v.expected, resto.EstOuvert())
+		}
+	}
 }
 
 var RépartitTest = []struct {

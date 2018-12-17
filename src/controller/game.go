@@ -30,7 +30,7 @@ func NewGame(width, height int, url string) *Game {
 	for i, v := range tmp {
 		m[i] = v.(map[string]interface{})
 	}
-	for i, r := range m {
+	for _, r := range m {
 		hor := r["horaires"].([]interface{})
 		h := make([][2]float64, len(hor))
 		for i, v := range hor {
@@ -50,7 +50,7 @@ func NewGame(width, height int, url string) *Game {
 		IntToStr(de, d)
 		game.Restos = append(game.Restos, NewResto(
 			width, height, int(r["temps"].(float64)), int(r["acceleration"].(float64)),
-			i, false, h, e, p, d, r["carres"].([]interface{})))
+			false, h, e, p, d, r["carres"].([]interface{})))
 		// Pixel semble plus être un peu moins cassé quand il n'a pas à créer plusieurs fenêtres en même temps
 		// (c'est peut-être totalement faux)
 		time.Sleep(time.Millisecond)

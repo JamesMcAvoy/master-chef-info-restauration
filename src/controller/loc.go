@@ -12,25 +12,26 @@ import (
 
 // Struct restaurant
 type Resto struct {
-	Win        *view.Window
-	Temps      int
-	accel      int
-	tick       <-chan time.Time
-	Pause      bool
-	Horaires   [][2]float64
-	Entrees    []string
-	Plats      []string
-	Desserts   []string
-	Carrés     []Carré
-	Clickables []Clickable
-	Personnes  []Personne
+	Win         *view.Window
+	Temps       int
+	accel       int
+	tick        <-chan time.Time
+	Pause       bool
+	MaitreHotel *MaitreHotel
+	Horaires    [][2]float64
+	Entrees     []string
+	Plats       []string
+	Desserts    []string
+	Carrés      []Carré
+	Clickables  []Clickable
+	Personnes   []Personne
 }
 
 // Constructeur de restaurant
-func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e, p, d []string, carrés []interface{}) *Resto {
+func NewResto(width, height, temps, accel int, pause bool, h [][2]float64, e, p, d []string, carrés []interface{}) *Resto {
 	// Crée la fenêtre
 	var win *view.Window
-	win = view.NewWindow(width, height, i)
+	win = view.NewWindow(width, height)
 	resto := Resto{
 		Win:      win,
 		Temps:    temps,
@@ -41,20 +42,26 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 		Plats:    p,
 		Desserts: d,
 	}
+	for i := range h {
+		for j := range h[i] {
+			h[i][j] = h[i][j] * 3600 * 60
+		}
+	}
+	resto.Horaires = h
 	// Crée les carrés
 	carPos := Répartit(width, height, len(carrés))
 	for i := range carPos {
 		if carPos[i][0] == 0 { // Empêche les tables d'apparaître dans les murs
-			carPos[i][0] += 50
+			carPos[i][0] += 80
 		}
-		//if carPos[i][1] == 0 {
-		//	carPos[i][1] += 50
-		//}
+		if carPos[i][1] == 0 {
+			carPos[i][1] += 30
+		}
 		if carPos[i][2] == width {
-			carPos[i][2] -= 50
+			carPos[i][2] -= 30
 		}
 		if carPos[i][3] == height {
-			carPos[i][3] -= 50
+			carPos[i][3] -= 40
 		}
 		resto.Carrés = append(resto.Carrés, Carré{Coords: carPos[i]})
 		// Place les tables
@@ -89,16 +96,37 @@ func NewResto(width, height, temps, accel, i int, pause bool, h [][2]float64, e,
 	}
 	// Crée le maître d'hôtel et lance le restaurant
 	resto.tick = time.Tick(time.Second / time.Duration(accel))
-	maitreHotel := NewMaitreHotel(&resto)
-	resto.Personnes = append(resto.Personnes, maitreHotel)
-	resto.Clickables = append(resto.Clickables, maitreHotel)
+	resto.MaitreHotel = NewMaitreHotel(&resto)
+	resto.Personnes = append(resto.Personnes, resto.MaitreHotel)
+	resto.Clickables = append(resto.Clickables, resto.MaitreHotel)
 	go resto.loop()
 	return &resto
 }
 
+// Vérifie si le restaurant est ouvert
+func (r *Resto) EstOuvert() bool {
+	for _, v := range r.Horaires {
+		if float64(r.Temps) > v[0] && float64(r.Temps) < v[1] {
+			return true
+		}
+	}
+	return false
+}
+
 // Incrémente le temps dans le restaurant
 func (r *Resto) loop() {
+	min := 0
+	prev := 0
 	for {
+		min = r.Temps % 3600 / 60
+		if min != prev {
+			if min < 10 {
+				r.Win.Window.SetTitle(fmt.Sprintf("La salle du resto, %vh0%v", r.Temps/3600, min))
+			} else {
+				r.Win.Window.SetTitle(fmt.Sprintf("La salle du resto, %vh%v", r.Temps/3600, min))
+			}
+			prev = min
+		}
 		select {
 		case mousePos := <-r.Win.Click:
 			for i := range r.Clickables {
@@ -175,7 +203,7 @@ func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 type Carré struct {
 	// basGaucheX, basGaucheY, hautDroiteX, hautDroiteY
 	Coords [4]int
-	Tables []Table
+	Tables []*Table
 }
 
 type Table struct {
@@ -186,17 +214,17 @@ type Table struct {
 	Occupée bool
 }
 
-func NewTable(taille int, coords [4]int, r *Resto) Table {
+func NewTable(taille int, coords [4]int, r *Resto) *Table {
 	var t Table
 	t.Nom = "Une table"
 	t.Taille = taille
 	t.Sprite = r.Win.NewSprite(fmt.Sprintf("ressources/table%v.png", taille), 0.85)
 	t.Sprite.Pos(float64((coords[2]+coords[0])/2), float64((coords[3]+coords[1])/2))
 	time.Sleep(time.Second)
-	return t
+	return &t
 }
 
-func (t Table) CheckClick(mousePos pixel.Vec) bool {
+func (t *Table) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(t.Sprite.PxlSprite.Picture().Bounds(), t.Sprite.Matrix, mousePos) {
 		go view.Popup(t.Nom, t.String())
 		return true
@@ -204,7 +232,7 @@ func (t Table) CheckClick(mousePos pixel.Vec) bool {
 	return false
 }
 
-func (t Table) String() string {
+func (t *Table) String() string {
 	if t.Occupée {
 		return fmt.Sprintf("Table de %v personnes occupée", t.Taille)
 	}

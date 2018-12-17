@@ -79,8 +79,8 @@ func (w *Window) Draw() {
 			frames = 0
 		default:
 			<-refresh
+			frames++
 		}
-		frames++
 		w.Window.Update()
 	}
 	w.Fin <- true
@@ -88,9 +88,9 @@ func (w *Window) Draw() {
 }
 
 // Crée une fenêtre
-func NewWindow(width, height, i int) *Window {
+func NewWindow(width, height int) *Window {
 	w, err := pixelgl.NewWindow(pixelgl.WindowConfig{
-		Title:  fmt.Sprintf("La salle du resto %v oui", i),
+		Title:  "La salle du resto",
 		Bounds: pixel.R(0, 0, float64(width), float64(height)),
 	})
 	if err != nil {

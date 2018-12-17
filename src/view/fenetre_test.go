@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestPosMove(t *testing.T) {
-	win := NewWindow(1280, 704, 1)
+	win := NewWindow(1280, 704)
 	cases := []struct {
 		sprite                   *Sprite
 		posX, posY, moveX, moveY float64

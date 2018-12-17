@@ -5,6 +5,7 @@
             "temps": 0,
             "acceleration": 60,
             "horaires": [
+                [0, 1],
                 [12, 15],
                 [19, 22]
             ],
