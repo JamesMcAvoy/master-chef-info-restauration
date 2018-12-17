@@ -140,12 +140,13 @@ func (r *Resto) loop() {
 			}
 		case scroll := <-r.Win.Scroll:
 			fmt.Println(r.accel)
-			if r.accel > 1.2 {
-				r.accel = r.accel + scroll/10*r.accel
+			acc := r.accel + scroll/10*r.accel
+			if acc > 1.2 {
+				r.accel = acc
 				r.tick = time.Tick(time.Second / time.Duration(r.accel))
 			} else {
 				if scroll > 0 {
-					r.accel = 1.21
+					r.accel = 1.1
 					r.tick = time.Tick(time.Second / time.Duration(1))
 				} else {
 					r.tick = nil
