@@ -50,7 +50,7 @@ func NewGame(width, height int, url string) *Game {
 		IntToStr(de, d)
 		game.Restos = append(game.Restos, NewResto(
 			width, height, int(r["temps"].(float64)), int(r["acceleration"].(float64)),
-			false, h, e, p, d, r["carres"].([]interface{})))
+			h, e, p, d, r["carres"].([]interface{})))
 		// Pixel semble plus être un peu moins cassé quand il n'a pas à créer plusieurs fenêtres en même temps
 		// (c'est peut-être totalement faux)
 		time.Sleep(time.Millisecond)

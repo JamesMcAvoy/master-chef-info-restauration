@@ -14,9 +14,8 @@ import (
 type Resto struct {
 	Win         *view.Window
 	Temps       int
-	accel       int
+	accel       float64
 	tick        <-chan time.Time
-	Pause       bool
 	MaitreHotel *MaitreHotel
 	Horaires    [][2]float64
 	Entrees     []string
@@ -28,15 +27,14 @@ type Resto struct {
 }
 
 // Constructeur de restaurant
-func NewResto(width, height, temps, accel int, pause bool, h [][2]float64, e, p, d []string, carrés []interface{}) *Resto {
+func NewResto(width, height, temps, accel int, h [][2]float64, e, p, d []string, carrés []interface{}) *Resto {
 	// Crée la fenêtre
 	var win *view.Window
 	win = view.NewWindow(width, height)
 	resto := Resto{
 		Win:      win,
 		Temps:    temps,
-		accel:    accel,
-		Pause:    pause,
+		accel:    float64(accel),
 		Horaires: h,
 		Entrees:  e,
 		Plats:    p,
@@ -63,7 +61,7 @@ func NewResto(width, height, temps, accel int, pause bool, h [][2]float64, e, p,
 		if carPos[i][3] == height {
 			carPos[i][3] -= 40
 		}
-		resto.Carrés = append(resto.Carrés, Carré{Coords: carPos[i]})
+		resto.Carrés = append(resto.Carrés, NewCarré(carPos[i]))
 		// Place les tables
 		car := carrés[i].(map[string]interface{})
 		var tailles []int
@@ -79,13 +77,19 @@ func NewResto(width, height, temps, accel int, pause bool, h [][2]float64, e, p,
 			j := rand.Intn(i + 1)
 			tailles[i], tailles[j] = tailles[j], tailles[i]
 		}
-		tablePos := Répartit(resto.Carrés[i].Coords[2]-resto.Carrés[i].Coords[0], resto.Carrés[i].Coords[3]-resto.Carrés[i].Coords[1], int(tableCount))
+		tablePos := Répartit(
+			resto.Carrés[i].Coords[2]-resto.Carrés[i].Coords[0],
+			resto.Carrés[i].Coords[3]-resto.Carrés[i].Coords[1],
+			int(tableCount),
+		)
 		index := 0
 		for j := range tablePos {
 			go func(i, j, index int) {
 				table := NewTable(
 					tailles[index],
-					[4]int{carPos[i][0] + tablePos[j][0], carPos[i][1] + tablePos[j][1], carPos[i][0] + tablePos[j][2], carPos[i][1] + tablePos[j][3]},
+					[4]int{
+						carPos[i][0] + tablePos[j][0], carPos[i][1] + tablePos[j][1],
+						carPos[i][0] + tablePos[j][2], carPos[i][1] + tablePos[j][3]},
 					&resto,
 				)
 				resto.Carrés[i].Tables = append(resto.Carrés[i].Tables, table)
@@ -134,16 +138,27 @@ func (r *Resto) loop() {
 					break
 				}
 			}
+		case scroll := <-r.Win.Scroll:
+			fmt.Println(r.accel)
+			if r.accel > 1.2 {
+				r.accel = r.accel + scroll/10*r.accel
+				r.tick = time.Tick(time.Second / time.Duration(r.accel))
+			} else {
+				if scroll > 0 {
+					r.accel = 1.21
+					r.tick = time.Tick(time.Second / time.Duration(1))
+				} else {
+					r.tick = nil
+				}
+			}
 		case <-r.tick:
 			for _, p := range r.Personnes {
 				p.Act()
 			}
-			if r.Pause == false {
-				if r.Temps < 86400 {
-					r.Temps++
-				} else {
-					r.Temps = 0
-				}
+			if r.Temps < 86400 {
+				r.Temps++
+			} else {
+				r.Temps = 0
 			}
 		}
 	}
@@ -202,8 +217,14 @@ func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 
 type Carré struct {
 	// basGaucheX, basGaucheY, hautDroiteX, hautDroiteY
-	Coords [4]int
-	Tables []*Table
+	Coords   [4]int
+	Tables   []*Table
+	Serveurs []Serveur
+}
+
+func NewCarré(pos [4]int) Carré {
+	c := Carré{Coords: pos}
+	return c
 }
 
 type Table struct {

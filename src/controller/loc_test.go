@@ -10,6 +10,10 @@ import (
 
 // Donne le thread principal à pixel
 func TestMain(m *testing.M) {
+	err := os.Chdir(os.Getenv("GOPATH") + "/src/github.com/JamesMcAvoy/resto")
+	if err != nil {
+		panic(err)
+	}
 	pixelgl.Run(func() {
 		os.Exit(m.Run())
 	})
@@ -17,20 +21,19 @@ func TestMain(m *testing.M) {
 
 type NewRestoTestStruct struct {
 	temps, accel int
-	pause        bool
 	tAttendu     int
 }
 
 var NewRestoTest = []NewRestoTestStruct{
-	{0, 2, false, 1},
-	{5, 1, true, 5},
-	{0, 60, false, 30},
+	{0, 2, 1},
+	{5, 1, 10},
+	{0, 60, 30},
 }
 
 func TestNewResto(t *testing.T) {
 	for _, v := range NewRestoTest {
 		go func(l NewRestoTestStruct) {
-			resto := NewResto(1280, 704, l.temps, l.accel, l.pause, [][2]float64{{2.0, 3.0}},
+			resto := NewResto(1280, 704, l.temps, l.accel, [][2]float64{{2.0, 3.0}},
 				[]string{"e"}, []string{"p"}, []string{"d"}, []interface{}{})
 			time.Sleep(501 * time.Millisecond)
 			if l.tAttendu != resto.Temps {
@@ -47,7 +50,7 @@ var EstOuvertTest = []struct {
 	horaires [][2]float64
 	expected bool
 }{
-	{100, nil},
+	{100, nil, false},
 	{100, [][2]float64{{0, 10}}, false},
 	{100, [][2]float64{{90, 110}}, true},
 	{100, [][2]float64{{90, 99}, {101, 130}}, false},
@@ -55,7 +58,7 @@ var EstOuvertTest = []struct {
 }
 
 func TestEstOuvert(t *testing.T) {
-	resto := NewResto(1000, 1000, 0, 0.001, false, [][2]float64{}, []string{"e"}, []string{"p"}, []string{"d"}, []interface{}{})
+	resto := NewResto(1000, 1000, 0, 1, [][2]float64{}, []string{"e"}, []string{"p"}, []string{"d"}, []interface{}{})
 	for _, v := range EstOuvertTest {
 		resto.Temps = v.temps
 		resto.Horaires = v.horaires

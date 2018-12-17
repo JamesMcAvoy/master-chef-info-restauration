@@ -51,6 +51,7 @@ type Window struct {
 	Sprites []*Sprite
 	Fin     chan bool
 	Click   chan pixel.Vec
+	Scroll  chan float64
 }
 
 // Fonction lancée à l'initialisation du restaurant
@@ -64,8 +65,12 @@ func (w *Window) Draw() {
 	refresh := time.Tick(time.Second / time.Duration(60))
 	for !w.Window.Closed() {
 		if w.Window.JustPressed(pixelgl.MouseButtonLeft) {
-			mp := w.Window.MousePosition()
-			w.Click <- mp
+			w.Click <- w.Window.MousePosition()
+		}
+		if w.Window.MouseScroll().Y != 0 {
+			fmt.Println("oui")
+			w.Scroll <- w.Window.MouseScroll().Y
+			fmt.Println("non")
 		}
 		w.Window.Clear(image.Black)
 		for i := 0; i < len(w.Sprites); i++ {
@@ -99,8 +104,9 @@ func NewWindow(width, height int) *Window {
 	win := Window{
 		Window: w,
 		//Sprites: []*Sprite{sprite},
-		Fin:   make(chan bool),
-		Click: make(chan pixel.Vec),
+		Fin:    make(chan bool),
+		Click:  make(chan pixel.Vec),
+		Scroll: make(chan float64),
 	}
 	_ = win.NewSprite("ressources/map.png", 2)
 	go win.Draw()
