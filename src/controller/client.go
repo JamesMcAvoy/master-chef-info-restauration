@@ -7,7 +7,7 @@ import (
 	"math/rand"
 )
 
-// Client
+// Client représente un groupe de clients
 type Client struct {
 	Resto     *Resto
 	Nom       string
@@ -19,7 +19,7 @@ type Client struct {
 	Table     *Table
 }
 
-// Constructeur de clients
+// NewClient est le onstructeur de clients
 func NewClient(r *Resto) *Client {
 	var c Client
 	c.Resto = r
@@ -35,7 +35,7 @@ func NewClient(r *Resto) *Client {
 	return &c
 }
 
-// Ouvre le popup décrivant l'état du client quand il est cliqué
+// CheckClick ouvre le popup décrivant l'état du client quand il est cliqué
 func (c *Client) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(c.Sprite.PxlSprite.Picture().Bounds(), c.Sprite.Matrix, mousePos) {
 		go view.Popup(c.Nom, c.String())
@@ -49,7 +49,7 @@ func (c *Client) String() string {
 	return fmt.Sprintf("Groupe de %v personnes\n\n%s", c.Taille, c.Etat)
 }
 
-// Action effectuée par le client à chaque tick du restaurant
+// Act est l'action effectuée par le client à chaque tick du restaurant
 func (c *Client) Act() {
 	if c.Restant > 0 {
 		c.Restant--
@@ -63,7 +63,8 @@ func (c *Client) Act() {
 		}
 	case "Se dirige vers une table":
 		if c.Sprite.Goto(c.Table.Sprite, 0, 50) {
-			c.Etat = "Choisis un plat"
+			c.Etat = "Choisit un plat"
+			c.Restant = 150
 		}
 	}
 	if c.Restant == 0 {
@@ -78,6 +79,8 @@ func (c *Client) Act() {
 		case "Se dirige vers le maître d'hôtel":
 			c.Resto.MaitreHotel.Queue = append(c.Resto.MaitreHotel.Queue, c)
 			c.Etat = "En attente d'attribution de table"
+		case "Choisit un plat":
+			//c.Table.Carré.AppelServeur
 		}
 	}
 }

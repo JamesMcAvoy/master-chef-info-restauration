@@ -10,14 +10,14 @@ import (
 // Game représente l'"objet principal".
 // Il contient les restos et la liaison avec le serveur
 type Game struct {
-	Url    string
-	Restos []*Resto
+	Adresse string
+	Restos  []*Resto
 }
 
-// Initialisation des restos et connection au serveur
-func NewGame(width, height int, url string) *Game {
+// NewGame initialise les restos et établit la connection au serveur
+func NewGame(width, height int, adresse string) *Game {
 	game := Game{
-		Url: url,
+		Adresse: adresse,
 	}
 	bonjour := make(map[string]interface{})
 	bonjour["type"] = "bonjour"
@@ -58,13 +58,13 @@ func NewGame(width, height int, url string) *Game {
 	return &game
 }
 
-// Effectue une requête au serveur, retourne une map du JSON retourné par le serveur.
+// Req effectue une requête au serveur, retourne une map du JSON retourné par le serveur.
 func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
 	msg, err := json.Marshal(ob)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", c.Url, bytes.NewBuffer(msg))
+	req, err := http.NewRequest("POST", c.Adresse, bytes.NewBuffer(msg))
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c Game) Req(ob map[string]interface{}) (map[string]interface{}, error) {
 	return repMap, nil
 }
 
-// Convertit un array d'interfaces en array de strings
+// IntToStr convertit un array d'interfaces en array de strings
 func IntToStr(intefaceArray []interface{}, strArray []string) {
 	for i, v := range intefaceArray {
 		switch v.(type) {

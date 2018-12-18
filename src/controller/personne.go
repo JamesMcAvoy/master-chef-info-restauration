@@ -7,14 +7,14 @@ import (
 	"math/rand"
 )
 
-// interface Clickable: Tous les objets sur lesquels ont peut cliquer l'implémentent.
+// Clickable est l'interface implémentée par tous les objets sur lesquels ont peut cliquer.
 // Cliquer dessus fait apparaître un popup décrivant l'objet.
 type Clickable interface {
 	CheckClick(pixel.Vec) bool
 }
 
-// Interface Personne: Le restaurant exécute la méthode Act de tous les
-// humains dans le restaurant à chaque tick.
+// Personne est l'interface implémentée par tous les humains dans le restaurant.
+// Leur méthode "Act" est appelée à chaque tick.
 type Personne interface {
 	Act()
 	CheckClick(pixel.Vec) bool
@@ -22,7 +22,7 @@ type Personne interface {
 
 // SERVEUR
 
-// Serveur
+// Serveur représente un serveur
 type Serveur struct {
 	Carré  *Carré
 	Nom    string
@@ -31,7 +31,7 @@ type Serveur struct {
 	Client *Client // Le client dont le serveur s'occupe
 }
 
-// Constructeur de serveur
+// NewServeur construit un serveur
 func NewServeur(c *Carré) *Serveur {
 	var s Serveur
 	s.Nom = "Un serveur"
@@ -44,6 +44,7 @@ func NewServeur(c *Carré) *Serveur {
 	return &s
 }
 
+// Act est la fonction exécutée par le serveur à chaque tick du restaurant
 func (s *Serveur) Act() {
 	switch s.Etat {
 	case "Se dirige vers un client pour le placer":
@@ -58,7 +59,7 @@ func (s *Serveur) Act() {
 	}
 }
 
-// Ouvre le popup décrivant l'état du serveur quand il est cliqué
+// CheckClick ouvre le popup décrivant l'état du serveur quand il est cliqué
 func (s *Serveur) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(s.Sprite.PxlSprite.Picture().Bounds(), s.Sprite.Matrix, mousePos) {
 		go view.Popup(s.Nom, s.String())
@@ -73,7 +74,7 @@ func (s *Serveur) String() string {
 
 // MAITRE D'HOTEL
 
-// Maître d'hôtel
+// MaitreHotel représente le Maître d'hôtel
 type MaitreHotel struct {
 	Resto          *Resto
 	Nom            string
@@ -83,7 +84,7 @@ type MaitreHotel struct {
 	ProchainClient int
 }
 
-// Constructeur de maître d'ĥôtel
+// NewMaitreHotel construit un maître d'ĥôtel
 func NewMaitreHotel(r *Resto) *MaitreHotel {
 	var m MaitreHotel
 	m.Nom = "Maître d'hôtel"
@@ -96,7 +97,7 @@ func NewMaitreHotel(r *Resto) *MaitreHotel {
 	return &m
 }
 
-// Ouvre le popup décrivant l'état du maître d'ĥôtel quand il est cliqué
+// CheckClick ouvre le popup décrivant l'état du maître d'ĥôtel quand il est cliqué
 func (m *MaitreHotel) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(m.Sprite.PxlSprite.Picture().Bounds(), m.Sprite.Matrix, mousePos) {
 		go view.Popup(m.Nom, m.String())
@@ -110,7 +111,7 @@ func (m *MaitreHotel) String() string {
 	return fmt.Sprintf("Temps avant l'arrivée du prochain client: %v", m.ProchainClient)
 }
 
-// Action effectuée par le maître d'hôtel à chaque tick du restaurant.
+// Act est la fonction exécutée par le maître d'hôtel à chaque tick
 func (m *MaitreHotel) Act() {
 	m.ProchainClient--
 	// Arrivée des clients
@@ -135,8 +136,8 @@ func (m *MaitreHotel) Act() {
 	}
 }
 
-// Retourne la table libre la plus petite pour le groupe qui arrive,
-// retourne nil si pas de table disponible
+// TableLibre retourne la table libre la plus petite pour un groupe de client.
+// Retourne nil si aucune table n'est disponible
 func (m *MaitreHotel) TableLibre(taille int) *Table {
 	for taille <= 10 {
 		for i := range m.Resto.Carrés {
@@ -147,7 +148,7 @@ func (m *MaitreHotel) TableLibre(taille int) *Table {
 				}
 			}
 		}
-		taille += 1
+		taille++
 	}
 	return nil
 }

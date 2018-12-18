@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	width  = 1280
-	height = 704
-	url    = "http://127.0.0.1:9090/"
+	width   = 1280
+	height  = 704
+	adresse = "http://127.0.0.1:9090/"
 	// Jusqu'à ce qu'on lie les 2 projets:
 	acceleration = 60 // Accélération initiale du temps
 	port         = 9090
@@ -25,7 +25,7 @@ func run() {
 	go Serv(port, acceleration)
 	time.Sleep(50 * time.Millisecond)
 
-	game := controller.NewGame(width, height, url)
+	game := controller.NewGame(width, height, adresse)
 	fin := make(chan bool)
 	for i, r := range game.Restos {
 		go func(i int, r *controller.Resto) {

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Simple serveur temporaire en attendant de lier les 2 parties de l'application
+// Serv lance un simple serveur http remplaçant la cuisine jusqu'à ce qu'on lie les deux parties de l'application
 func Serv(port int, accel int) {
 	temps := 0
 	go incTime(&temps, accel)

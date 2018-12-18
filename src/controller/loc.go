@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Struct restaurant
+// Resto représente un restaurant
 type Resto struct {
 	Win         *view.Window
 	Temps       int
@@ -26,7 +26,7 @@ type Resto struct {
 	Personnes   []Personne
 }
 
-// Constructeur de restaurant
+// NewResto crée un restaurant, place ses tables et ses serveurs
 func NewResto(width, height, temps, accel int, h [][2]float64, e, p, d []string, carrés []interface{}) *Resto {
 	// Crée la fenêtre
 	var win *view.Window
@@ -71,7 +71,7 @@ func NewResto(width, height, temps, accel int, h [][2]float64, e, p, d []string,
 	return &resto
 }
 
-// Vérifie si le restaurant est ouvert
+// EstOuvert vérifie si le restaurant est ouvert
 func (r *Resto) EstOuvert() bool {
 	for _, v := range r.Horaires {
 		if float64(r.Temps) > v[0] && float64(r.Temps) < v[1] {
@@ -81,7 +81,7 @@ func (r *Resto) EstOuvert() bool {
 	return false
 }
 
-// Incrémente le temps dans le restaurant
+// loop est la boucle principale du restaurant
 func (r *Resto) loop() {
 	min := 0
 	prev := 0
@@ -128,7 +128,7 @@ func (r *Resto) loop() {
 	}
 }
 
-// Répartit un espace de dimensions width, height en nb carrés de façon à ce que le nombre
+// Répartit répartit un espace de dimensions width, height en nb carrés de façon à ce que le nombre
 // de lignes et le nombre de colomnes soient le plus proche possible.
 //
 // Retourne un tableau de tableaux de coordonées des rectangles  sous la forme:
@@ -166,7 +166,7 @@ func Répartit(width, height, nb int) [][4]int {
 	return returned
 }
 
-// Juste une petite fonction pour ne pas répéter de code dans Répartit()
+// repLoop: juste une petite fonction pour ne pas répéter de code dans Répartit()
 func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 	for i := 0; i < w; i++ {
 		he := 0
@@ -179,7 +179,7 @@ func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 	}
 }
 
-// Ensemble de tables dont un groupe de serveurs s'occupe
+// Carré est un ensemble de tables dont un groupe de serveurs s'occupe
 type Carré struct {
 	// basGaucheX, basGaucheY, hautDroiteX, hautDroiteY
 	Coords   [4]int
@@ -188,7 +188,7 @@ type Carré struct {
 	Resto    *Resto
 }
 
-// Crée un carré, lui attribue les tables et les serveurs
+// NewCarré crée un carré, lui attribue les tables et les serveurs
 func NewCarré(pos [4]int, car map[string]interface{}, resto *Resto) *Carré {
 	c := Carré{Coords: pos, Resto: resto}
 	var tailles []int
@@ -230,7 +230,7 @@ func NewCarré(pos [4]int, car map[string]interface{}, resto *Resto) *Carré {
 	return &c
 }
 
-// Table
+// Table représente une table
 type Table struct {
 	Sprite  *view.Sprite
 	Carré   *Carré
@@ -240,7 +240,7 @@ type Table struct {
 	Occupée bool
 }
 
-// Constructeur de table
+// NewTable crée une table
 func NewTable(taille int, coords [4]int, c *Carré) *Table {
 	var t Table
 	t.Nom = "Une table"
@@ -252,7 +252,7 @@ func NewTable(taille int, coords [4]int, c *Carré) *Table {
 	return &t
 }
 
-// Ouvre un popup quand la table est cliquée
+// CheckClick ouvre un popup quand la table est cliquée
 func (t *Table) CheckClick(mousePos pixel.Vec) bool {
 	if view.CheckIfClicked(t.Sprite.PxlSprite.Picture().Bounds(), t.Sprite.Matrix, mousePos) {
 		go view.Popup(t.Nom, t.String())

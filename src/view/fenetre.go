@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Sprite: Struct contenant le sprite à afficher et sa matrice.
+// Sprite contient sprite à afficher et sa matrice.
 // Toutes les entités s'affichant à l'écran devront implémenter *Sprite.
 // Le constructeur place également un pointeur vers l'objet créé dans la fenêtre.
 // Donc il suffit de modifier Objet.Sprite.Matrix pour changer sa position à l'écran.
@@ -21,17 +21,18 @@ type Sprite struct {
 	Matrix    pixel.Matrix
 }
 
-// Déplace le sprite de x pixels horizontalement et y verticalement
+// Move déplace le sprite de x pixels horizontalement et y verticalement
 func (s *Sprite) Move(x, y float64) {
 	s.Matrix = s.Matrix.Moved(pixel.V(x, y))
 }
 
+// Pos déplace place le sprite à la position x, y.
 func (s *Sprite) Pos(x, y float64) {
 	s.Matrix[4] = x
 	s.Matrix[5] = y
 }
 
-// Déplace un sprite vers le centre du sprite dest + x pixels horizontalement et y pixels verticalement.
+// Goto déplace un sprite vers le centre du sprite dest + x pixels horizontalement et y pixels verticalement.
 // Retourne "true" si le sprite est arrivé à destination.
 func (s *Sprite) Goto(dest *Sprite, x, y float64) bool {
 	var p = [2]float64{s.Matrix[4], s.Matrix[5]}
@@ -53,7 +54,7 @@ func (s *Sprite) Goto(dest *Sprite, x, y float64) bool {
 	return false
 }
 
-// Ajoute un sprite à l'interface graphique
+// NewSprite ajoute un sprite à l'interface graphique
 func (w *Window) NewSprite(path string, scale float64) *Sprite {
 	img, err := LoadPicture(path)
 	if err != nil {
@@ -68,7 +69,7 @@ func (w *Window) NewSprite(path string, scale float64) *Sprite {
 
 }
 
-// Window: Chaque restaurant possède une fenêtre. Chaque fenêtre possède un array de pointeurs de sprite.
+// Window est la fenêtre posséeée par chaquer estaurant. Chaque fenêtre possède un tableau de sprites
 type Window struct {
 	Window  *pixelgl.Window
 	Sprites []*Sprite
@@ -77,7 +78,7 @@ type Window struct {
 	Scroll  chan float64
 }
 
-// Fonction lancée à l'initialisation du restaurant
+// Draw est la fonction lancée à l'initialisation du restaurant
 // Boucle principale de l'interface graphique
 func (w *Window) Draw() {
 	atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -113,7 +114,7 @@ func (w *Window) Draw() {
 	w.Window.Destroy()
 }
 
-// Crée une fenêtre
+// NewWindow crée une fenêtre
 func NewWindow(width, height int) *Window {
 	w, err := pixelgl.NewWindow(pixelgl.WindowConfig{
 		Title:  "La salle du resto",
@@ -134,8 +135,8 @@ func NewWindow(width, height int) *Window {
 	return &win
 }
 
-// Crée une petite fenêtre avec du texte
-// Utilisé pour décrire les éléments clickés
+// Popup crée une petite fenêtre avec du texte.
+// Utilisée pour décrire les éléments clickés
 func Popup(title, content string) {
 	ui.QueueMain(func() {
 		win := ui.NewWindow(title, 300, 200, false)
@@ -172,7 +173,7 @@ func Popup(title, content string) {
 	*/
 }
 
-// Vérifie si une entité est cliquée.
+// CheckIfClicked vérifie si une entité est cliquée.
 // Entrées: rectangle et matrice de l'entité, vecteur du curseur.
 func CheckIfClicked(rect pixel.Rect, mat pixel.Matrix, vect pixel.Vec) bool {
 	vect.X += (rect.Max.X / 2) * mat[0]

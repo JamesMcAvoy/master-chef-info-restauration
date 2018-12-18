@@ -8,7 +8,7 @@ import (
 
 var NewGameTest = []struct {
 	width, height int
-	url           string
+	adresse       string
 	game          bool // Game a au moins 1 resto?
 	apanic        bool // NewGame déclenche une panique?
 }{
@@ -23,13 +23,13 @@ func TestNewGame(t *testing.T) {
 		defer func() {
 			if r := recover(); (r == nil) != v.apanic {
 				t.Errorf("NewGame(%q, %q, %q): a paniqué: %t attendu, %t reçu",
-					v.width, v.height, v.url, v.apanic, (r == nil))
+					v.width, v.height, v.adresse, v.apanic, (r == nil))
 			}
 		}()
-		game := NewGame(v.width, v.height, v.url)
+		game := NewGame(v.width, v.height, v.adresse)
 		if (len(game.Restos) > 0) != v.game {
 			t.Errorf("NewGame(%q, %q, %q): au moins 1 restaurant: %t attendu, %t reçu",
-				v.width, v.height, v.url, len(game.Restos) > 0, v.game)
+				v.width, v.height, v.adresse, len(game.Restos) > 0, v.game)
 		}
 	}
 }
@@ -50,8 +50,8 @@ func TestReq(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://url.net").Get("/").Reply(200).JSON(map[string]string{"rep": "ok"})
 	g := Game{
-		Url:    "http://url.net",
-		Restos: []*Resto{},
+		Adresse: "http://url.net",
+		Restos:  []*Resto{},
 	}
 	for _, v := range RequestTest {
 		output, err := g.Req(v.input)
