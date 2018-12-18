@@ -182,10 +182,10 @@ func repLoop(width, height, w, h int, index, shift *int, returned [][4]int) {
 // Ensemble de tables dont un groupe de serveurs s'occupe
 type Carré struct {
 	// basGaucheX, basGaucheY, hautDroiteX, hautDroiteY
-	Coords         [4]int
-	Tables         []*Table
-	ServeursLibres []*Serveur
-	Resto          *Resto
+	Coords   [4]int
+	Tables   []*Table
+	Serveurs []*Serveur
+	Resto    *Resto
 }
 
 // Crée un carré, lui attribue les tables et les serveurs
@@ -225,7 +225,7 @@ func NewCarré(pos [4]int, car map[string]interface{}, resto *Resto) *Carré {
 		index++
 	}
 	for i := 0.0; i <= tableCount/5; i++ {
-		c.ServeursLibres = append(c.ServeursLibres, NewServeur(&c))
+		c.Serveurs = append(c.Serveurs, NewServeur(&c))
 	}
 	return &c
 }

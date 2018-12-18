@@ -28,6 +28,7 @@ type Serveur struct {
 	Nom    string
 	Etat   string
 	Sprite *view.Sprite
+	Client *Client // Le client dont le serveur s'occupe
 }
 
 // Constructeur de serveur
@@ -36,13 +37,26 @@ func NewServeur(c *Carré) *Serveur {
 	s.Nom = "Un serveur"
 	s.Sprite = c.Resto.Win.NewSprite("ressources/serveur.png", 0.3)
 	s.Sprite.Pos(rand.Float64()*1000, rand.Float64()*700)
+	s.Etat = "Libre"
 	s.Carré = c
 	c.Resto.Personnes = append(c.Resto.Personnes, &s)
 	c.Resto.Clickables = append(c.Resto.Clickables, &s)
 	return &s
 }
 
-func (s *Serveur) Act() {}
+func (s *Serveur) Act() {
+	switch s.Etat {
+	case "Se dirige vers un client pour le placer":
+		if s.Sprite.Goto(s.Client.Sprite, 30, 0) {
+			s.Client.Etat = "Se dirige vers une table"
+			s.Etat = "Se dirige vers une table pour placer les clients"
+		}
+	case "Se dirige vers une table pour placer les clients":
+		if s.Sprite.Goto(s.Client.Table.Sprite, 40, 0) {
+			s.Etat = "Libre"
+		}
+	}
+}
 
 // Ouvre le popup décrivant l'état du serveur quand il est cliqué
 func (s *Serveur) CheckClick(mousePos pixel.Vec) bool {
@@ -54,7 +68,7 @@ func (s *Serveur) CheckClick(mousePos pixel.Vec) bool {
 }
 
 func (s *Serveur) String() string {
-	return "oh un serveur"
+	return s.Etat
 }
 
 // MAITRE D'HOTEL
@@ -104,10 +118,19 @@ func (m *MaitreHotel) Act() {
 		NewClient(m.Resto)
 		m.ProchainClient = rand.Intn(300) + 1
 	}
-	// Attribution d'une table à un client de la file
-	for i := range m.Queue {
-		if table := m.TableLibre(m.Queue[i].Taille); table != nil {
-			fmt.Println(table.Carré.ServeursLibres[0])
+	// Attribution d'une table à un client de la file, appel d'un serveur pour le placer
+	//if len(m.Queue) > 0 {
+	for i, client := range m.Queue {
+		if table := m.TableLibre(client.Taille); table != nil {
+			for _, serveur := range table.Carré.Serveurs {
+				if serveur.Etat == "Libre" {
+					serveur.Etat = "Se dirige vers un client pour le placer"
+					serveur.Client = client
+					client.Table = table
+					m.Queue = append(m.Queue[:i], m.Queue[i+1:]...)
+					break
+				}
+			}
 		}
 	}
 }
@@ -118,7 +141,8 @@ func (m *MaitreHotel) TableLibre(taille int) *Table {
 	for taille <= 10 {
 		for i := range m.Resto.Carrés {
 			for j := range m.Resto.Carrés[i].Tables {
-				if m.Resto.Carrés[i].Tables[j].Taille == taille {
+				if m.Resto.Carrés[i].Tables[j].Taille == taille && !m.Resto.Carrés[i].Tables[j].Occupée {
+					m.Resto.Carrés[i].Tables[j].Occupée = true
 					return m.Resto.Carrés[i].Tables[j]
 				}
 			}

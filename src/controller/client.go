@@ -16,6 +16,7 @@ type Client struct {
 	Restant   int
 	EstArrivé bool
 	Taille    int
+	Table     *Table
 }
 
 // Constructeur de clients
@@ -50,13 +51,19 @@ func (c *Client) String() string {
 
 // Action effectuée par le client à chaque tick du restaurant
 func (c *Client) Act() {
-	c.Restant--
+	if c.Restant > 0 {
+		c.Restant--
+	}
 	switch c.Etat {
 	case "S'en va":
 		c.Sprite.Move(-2, 0)
 	case "Se dirige vers le maître d'hôtel":
-		if c.Sprite.Goto(c.Resto.MaitreHotel.Sprite, 50, 0) {
+		if c.Sprite.Goto(c.Resto.MaitreHotel.Sprite, 30, 0) {
 			c.Restant = 0
+		}
+	case "Se dirige vers une table":
+		if c.Sprite.Goto(c.Table.Sprite, 0, 50) {
+			c.Etat = "Choisis un plat"
 		}
 	}
 	if c.Restant == 0 {
