@@ -61,7 +61,7 @@ func (s *Serveur) Act() {
 
 // CheckClick ouvre le popup décrivant l'état du serveur quand il est cliqué
 func (s *Serveur) CheckClick(mousePos pixel.Vec) bool {
-	if view.CheckIfClicked(s.Sprite.PxlSprite.Picture().Bounds(), s.Sprite.Matrix, mousePos) {
+	if view.CheckIfClicked(s.Sprite.PxlSprite.Frame(), s.Sprite.Matrix, mousePos) {
 		go view.Popup(s.Nom, s.String())
 		return true
 	}
@@ -99,7 +99,7 @@ func NewMaitreHotel(r *Resto) *MaitreHotel {
 
 // CheckClick ouvre le popup décrivant l'état du maître d'ĥôtel quand il est cliqué
 func (m *MaitreHotel) CheckClick(mousePos pixel.Vec) bool {
-	if view.CheckIfClicked(m.Sprite.PxlSprite.Picture().Bounds(), m.Sprite.Matrix, mousePos) {
+	if view.CheckIfClicked(m.Sprite.PxlSprite.Frame(), m.Sprite.Matrix, mousePos) {
 		go view.Popup(m.Nom, m.String())
 		return true
 	}
@@ -122,33 +122,31 @@ func (m *MaitreHotel) Act() {
 	// Attribution d'une table à un client de la file, appel d'un serveur pour le placer
 	//if len(m.Queue) > 0 {
 	for i, client := range m.Queue {
-		if table := m.TableLibre(client.Taille); table != nil {
-			for _, serveur := range table.Carré.Serveurs {
-				if serveur.Etat == "Libre" {
-					serveur.Etat = "Se dirige vers un client pour le placer"
-					serveur.Client = client
-					client.Table = table
-					m.Queue = append(m.Queue[:i], m.Queue[i+1:]...)
-					break
-				}
+		if client.Table == nil {
+			m.AttribueTable(client)
+		}
+		if client.Table != nil {
+			if serveur := client.Table.Carré.ServeurLibre(); serveur != nil {
+				serveur.Etat = "Se dirige vers un client pour le placer"
+				serveur.Client = client
+				m.Queue = append(m.Queue[:i], m.Queue[i+1:]...)
 			}
 		}
 	}
 }
 
-// TableLibre retourne la table libre la plus petite pour un groupe de client.
-// Retourne nil si aucune table n'est disponible
-func (m *MaitreHotel) TableLibre(taille int) *Table {
-	for taille <= 10 {
-		for i := range m.Resto.Carrés {
-			for j := range m.Resto.Carrés[i].Tables {
-				if m.Resto.Carrés[i].Tables[j].Taille == taille && !m.Resto.Carrés[i].Tables[j].Occupée {
-					m.Resto.Carrés[i].Tables[j].Occupée = true
-					return m.Resto.Carrés[i].Tables[j]
+// TableLibre attribue la table libre la plus petite pour un groupe de client.
+// Ne fait rien si aucune table n'est disponible.
+func (m *MaitreHotel) AttribueTable(client *Client) {
+	for taille := client.Taille; taille <= 10; taille++ {
+		for _, carré := range m.Resto.Carrés {
+			for _, table := range carré.Tables {
+				if table.Taille == taille && !table.Occupée {
+					client.Table = table
+					table.Occupée = true
+					return
 				}
 			}
 		}
-		taille++
 	}
-	return nil
 }

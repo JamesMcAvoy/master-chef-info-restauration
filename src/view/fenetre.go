@@ -8,6 +8,7 @@ import (
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/font/basicfont"
 	"image"
+	"math/rand"
 	"time"
 )
 
@@ -67,6 +68,26 @@ func (w *Window) NewSprite(path string, scale float64) *Sprite {
 	w.Sprites = append(w.Sprites, &sprite)
 	return &sprite
 
+}
+
+// NewRandomSprite ajoute un sprite à l'interface graphique à partir d'une image en contenant plusieurs.
+// path chemin de l'image, x, y dimensions d'un sprite, scale échelle utilisée.
+func (w *Window) NewRandomSprite(path string, x, y int, scale float64) *Sprite {
+	spritesheet, err := LoadPicture(path)
+	if err != nil {
+		panic(err)
+	}
+	// Position du sprite séléctionné dans le spritesheet
+	bounds := spritesheet.Bounds()
+	posX := float64(rand.Intn(int(bounds.Max.X/float64(x))) * x)
+	posY := float64(rand.Intn(int(bounds.Max.Y/float64(y))) * y)
+	var sprite Sprite
+	sprite.PxlSprite = pixel.NewSprite(spritesheet,
+		pixel.R(posX, posY, posX+float64(x), posY+float64(y)))
+	sprite.Matrix = pixel.IM.Moved(w.Window.Bounds().Center())
+	sprite.Matrix = sprite.Matrix.Scaled(w.Window.Bounds().Center(), scale)
+	w.Sprites = append(w.Sprites, &sprite)
+	return &sprite
 }
 
 // Window est la fenêtre posséeée par chaquer estaurant. Chaque fenêtre possède un tableau de sprites
@@ -176,8 +197,8 @@ func Popup(title, content string) {
 // CheckIfClicked vérifie si une entité est cliquée.
 // Entrées: rectangle et matrice de l'entité, vecteur du curseur.
 func CheckIfClicked(rect pixel.Rect, mat pixel.Matrix, vect pixel.Vec) bool {
-	vect.X += (rect.Max.X / 2) * mat[0]
-	vect.Y += (rect.Max.Y / 2) * mat[3]
+	vect.X += (rect.Max.X/2)*mat[0] + rect.Min.X/2
+	vect.Y += (rect.Max.Y/2)*mat[3] + rect.Min.Y/2
 	if (rect.Min.X+mat[4] < vect.X) && (rect.Max.X*mat[0]+mat[4] > vect.X) {
 		if (rect.Min.Y+mat[5] < vect.Y) && (rect.Max.Y*mat[3]+mat[5] > vect.Y) {
 			return true

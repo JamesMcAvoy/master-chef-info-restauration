@@ -97,7 +97,7 @@ func (r *Resto) loop() {
 		}
 		select {
 		case mousePos := <-r.Win.Click:
-			for i := range r.Clickables {
+			for i := len(r.Clickables) - 1; i >= 0; i-- {
 				if r.Clickables[i].CheckClick(mousePos) {
 					break
 				}
@@ -224,10 +224,20 @@ func NewCarré(pos [4]int, car map[string]interface{}, resto *Resto) *Carré {
 		}(j, index)
 		index++
 	}
-	for i := 0.0; i <= tableCount/5; i++ {
+	for i := 0.0; i <= tableCount/12; i++ {
 		c.Serveurs = append(c.Serveurs, NewServeur(&c))
 	}
 	return &c
+}
+
+// ServeurLibre retourne un serveur libre du carré
+func (c *Carré) ServeurLibre() *Serveur {
+	for _, serveur := range c.Serveurs {
+		if serveur.Etat == "Libre" {
+			return serveur
+		}
+	}
+	return nil
 }
 
 // Table représente une table
@@ -254,7 +264,7 @@ func NewTable(taille int, coords [4]int, c *Carré) *Table {
 
 // CheckClick ouvre un popup quand la table est cliquée
 func (t *Table) CheckClick(mousePos pixel.Vec) bool {
-	if view.CheckIfClicked(t.Sprite.PxlSprite.Picture().Bounds(), t.Sprite.Matrix, mousePos) {
+	if view.CheckIfClicked(t.Sprite.PxlSprite.Frame(), t.Sprite.Matrix, mousePos) {
 		go view.Popup(t.Nom, t.String())
 		return true
 	}

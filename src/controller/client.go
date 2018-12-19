@@ -24,7 +24,8 @@ func NewClient(r *Resto) *Client {
 	var c Client
 	c.Resto = r
 	c.Nom = "Clients"
-	c.Sprite = r.Win.NewSprite("ressources/LeStig.png", 0.2)
+	//c.Sprite = r.Win.NewSprite("ressources/LeStig.png", 0.2)
+	c.Sprite = r.Win.NewRandomSprite("ressources/emoji.png", 32, 32, 1.5)
 	c.Sprite.Pos(20, 350)
 	c.Etat = "Se demande si le restaurant est ouvert"
 	c.Restant = 30
@@ -37,7 +38,7 @@ func NewClient(r *Resto) *Client {
 
 // CheckClick ouvre le popup décrivant l'état du client quand il est cliqué
 func (c *Client) CheckClick(mousePos pixel.Vec) bool {
-	if view.CheckIfClicked(c.Sprite.PxlSprite.Picture().Bounds(), c.Sprite.Matrix, mousePos) {
+	if view.CheckIfClicked(c.Sprite.PxlSprite.Frame(), c.Sprite.Matrix, mousePos) {
 		go view.Popup(c.Nom, c.String())
 		return true
 	}
